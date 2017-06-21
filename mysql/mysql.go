@@ -7,18 +7,12 @@ import (
 	"errors"
 )
 
-type Mysql struct {
-	db *gorm.DB
-}
-
-var (
-	mysql *Mysql
-)
+var db *gorm.DB
 
 func NewConn(dataSource, prefix string) (*gorm.DB, error) {
 
-	if mysql.db != nil {
-		return mysql.db, nil
+	if db != nil {
+		return db, nil
 	}
 
 	setTablePrefix(prefix)
@@ -28,18 +22,15 @@ func NewConn(dataSource, prefix string) (*gorm.DB, error) {
 	}
 
 	db.DB().SetConnMaxLifetime(30 * time.Second)
-	mysql = &Mysql{
-		db,
-	}
 
-	return mysql.db, err
+	return db, err
 }
 
 func GetConn() (*gorm.DB, error){
-	if mysql.db == nil {
+	if db == nil {
 		return nil, errors.New("connection is not exist")
 	}
-	return mysql.db, nil
+	return db, nil
 }
 
 func setTablePrefix(prefix string) {
