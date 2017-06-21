@@ -15,12 +15,13 @@ var (
 	mysql *Mysql
 )
 
-func NewConn(dataSource string) (*gorm.DB, error) {
+func NewConn(dataSource, prefix string) (*gorm.DB, error) {
 
 	if mysql.db != nil {
 		return mysql.db, nil
 	}
 
+	setTablePrefix(prefix)
 	db, err := gorm.Open("mysql", dataSource)
 	if err != nil {
 		return nil, err
@@ -34,9 +35,15 @@ func NewConn(dataSource string) (*gorm.DB, error) {
 	return mysql.db, err
 }
 
-func getConn() (*gorm.DB, error){
+func GetConn() (*gorm.DB, error){
 	if mysql.db == nil {
 		return nil, errors.New("connection is not exist")
 	}
 	return mysql.db, nil
+}
+
+func setTablePrefix(prefix string) {
+	gorm.DefaultTableNameHandler = func(db *gorm.DB, defaultTableName string) string {
+		return prefix + defaultTableName
+	}
 }
