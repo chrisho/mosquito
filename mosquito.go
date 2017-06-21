@@ -1,7 +1,7 @@
-package Mosquito
+package mosquito
 
 import "fmt"
 
-func main() {
-	fmt.Print("I am Mosquito")
+func RunServer() {
+	fmt.Print("I am mosquito")
 }
