@@ -3,7 +3,6 @@ package mysql
 import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	log "github.com/sirupsen/logrus"
 	"time"
 )
 
@@ -23,11 +22,10 @@ func NewConn(dataSource string) (*gorm.DB, error) {
 
 	db, err := gorm.Open("mysql", dataSource)
 	if err != nil {
-		log.Error(err)
+		return nil, err
 	}
 
 	db.DB().SetConnMaxLifetime(30 * time.Second)
-
 	mysql = &Mysql{
 		db,
 	}
