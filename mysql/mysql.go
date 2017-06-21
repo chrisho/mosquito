@@ -15,14 +15,13 @@ var (
 	mysql *Mysql
 )
 
-func NewConn(dataSource string, logger log.Logger) (*gorm.DB, error) {
+func NewConn(dataSource string) (*gorm.DB, error) {
 
 	if mysql.db != nil {
 		return mysql.db, nil
 	}
 
 	db, err := gorm.Open("mysql", dataSource)
-	db.SetLogger(logger)
 	if err != nil {
 		log.Error(err)
 	}
