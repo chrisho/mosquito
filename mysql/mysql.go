@@ -16,14 +16,16 @@ func NewConn(dataSource, prefix string) (*gorm.DB, error) {
 	}
 
 	setTablePrefix(prefix)
-	db, err := gorm.Open("mysql", dataSource)
+	connection, err := gorm.Open("mysql", dataSource)
 	if err != nil {
 		return nil, err
 	}
 
-	db.DB().SetConnMaxLifetime(30 * time.Second)
+	connection.DB().SetConnMaxLifetime(30 * time.Second)
 
-	return db, err
+	connection = db
+
+	return connection, err
 }
 
 func GetConn() (*gorm.DB, error){
