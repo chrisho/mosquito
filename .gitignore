@@ -16,3 +16,6 @@
 
 # ide cache
 .idea
+
+# env
+.env
