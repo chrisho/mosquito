@@ -4,6 +4,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"time"
+	"errors"
 )
 
 type Mysql struct {
@@ -35,7 +36,7 @@ func NewConn(dataSource string) (*gorm.DB, error) {
 
 func getConn() (*gorm.DB, error){
 	if mysql.db == nil {
-		return nil, error("not exist connection")
+		return nil, errors.New("connection is not exist")
 	}
 	return mysql.db, nil
 }
