@@ -44,7 +44,7 @@ func CatchPanic() {
 	}
 }
 
-func NewLog(endpoint, accessKeyID, accessKeySecret, name string) {
+func NewLog() {
 
 	conn, err := net.Dial("tcp", "163.com:80")
 	ip := ""
