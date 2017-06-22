@@ -13,12 +13,13 @@ var db *gorm.DB
 
 func init() {
 	var err error
-	db, err = NewConn()
+	db, err = newConn()
 	if err != nil {
 		log.Println(err)
 	}
 }
-func NewConn() (*gorm.DB, error) {
+
+func newConn() (*gorm.DB, error) {
 
 	if db != nil {
 		return db, nil
