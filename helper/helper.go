@@ -1,11 +1,14 @@
 package helper
 
-import "reflect"
+import (
+	"reflect"
+	"os"
+	"log"
+)
 
-// model User 映射到 Thrift User
 func ReflectThrift(model interface{}, thrift interface{}) {
 
-	thriftValue := reflect.ValueOf(thrift).Elem() // tU 的映射 Value
+	thriftValue := reflect.ValueOf(thrift).Elem()
 	thirftType := thriftValue.Type()
 
 	modelValue := reflect.ValueOf(model).Elem()
@@ -14,4 +17,14 @@ func ReflectThrift(model interface{}, thrift interface{}) {
 		name := thirftType.Field(i).Name
 		thriftValue.Field(i).Set(modelValue.FieldByName(name))
 	}
+}
+
+func GetEnv(key string) (value string) {
+	value = os.Getenv(key)
+
+	if value == "" {
+		log.Println(key, " value is empty or not exist")
+	}
+
+	return
 }
