@@ -6,7 +6,7 @@ import (
 )
 
 func TestGetGOPATHs(t *testing.T) {
-	path := GetGOPATHs()
+	path := GetGoPATHs()
 
 	if len(path) == 0 {
 		t.Error("GOPATH environment variable is not set or empty")

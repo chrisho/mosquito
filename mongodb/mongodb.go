@@ -1,11 +1,10 @@
 package mongodb
 
 import (
-	"log"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 	"os"
 	"strings"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 var (
@@ -19,44 +18,18 @@ type Person struct {
 }
 
 // create mongodb connection
-func NewConn() {
+func NewConn() (conn *mgo.Session, err error) {
 
 	if connStr == "" {
 		initMongodbParams()
 	}
 
-	session, err := mgo.Dial(connStr)
-	if err != nil {
-		panic(err)
-	}
-	defer session.Close()
+	conn, err = mgo.Dial(connStr)
 
-	// Optional. Switch the session to a monotonic behavior.
-	session.SetMode(mgo.Monotonic, true)
-
-	c := session.DB("sude").C("people")
-
-	err = c.Insert(
-		&Person{"Ale", "+55 53 8116 9639"},
-		&Person{"Cla", "+55 53 8402 8510"},
-	)
-
-	println(err)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	result := Person{}
-	err = c.Find(bson.M{"name": "Ale"}).One(&result)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	println("Phone:", result.Phone)
+	return
 }
 
-// init redis parameter
+// init redis params
 func initMongodbParams() {
 	db = os.Getenv("MongodbDb")
 
@@ -98,4 +71,37 @@ func initMongodbParams() {
 	if options != "" {
 		connStr += "?" + options
 	}
+}
+
+// example
+func MongodbExample() {
+
+	session, err := NewConn()
+
+	if err != nil {
+		panic(err)
+	}
+
+	defer session.Close()
+	// Optional. Switch the session to a monotonic behavior.
+	session.SetMode(mgo.Monotonic, true)
+
+	c := session.DB("sude").C("people")
+
+	err = c.Insert(
+		&Person{"Ale", "+55 53 8116 9639"},
+		&Person{"Cla", "+55 53 8402 8510"},
+	)
+
+	if err != nil {
+		println(err)
+	}
+
+	result := Person{}
+	err = c.Find(bson.M{"name": "Ale"}).One(&result)
+	if err != nil {
+		println(err)
+	}
+
+	println("Phone:", result.Phone)
 }

@@ -13,13 +13,13 @@ var (
 )
 
 // create redis connection
-func NewConn() (client *redis.Client, err error) {
+func NewConn() (conn *redis.Client, err error) {
 
 	if host == "" {
 		initRedisParams()
 	}
 
-	client = redis.NewClient(&redis.Options{
+	conn = redis.NewClient(&redis.Options{
 		Addr:     host,
 		Password: password,
 		DB:       db,
@@ -28,7 +28,7 @@ func NewConn() (client *redis.Client, err error) {
 	return
 }
 
-// init redis parameter
+// init redis params
 func initRedisParams() {
 
 	host = os.Getenv("RedisHost")
@@ -40,4 +40,16 @@ func initRedisParams() {
 	}
 
 	return
+}
+
+// example
+func RedisExample()  {
+	conn, err := NewConn()
+
+	println(err)
+
+	result, err := conn.Ping().Result()
+
+	println(result)
+	println(err)
 }

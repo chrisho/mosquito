@@ -16,6 +16,17 @@ import (
 	sls "github.com/aliyun/aliyun-log-go-sdk"
 )
 
+// init log params
+var (
+	projectEndpoint = os.Getenv("AliLogEndpoint")
+	projectAccessKeyID = os.Getenv("AliLogAccessKeyID")
+	projectAccessKeySecret = os.Getenv("AliLogAccessKeySecret")
+	projectName = os.Getenv("AliLogName")
+	logFile = os.Getenv("AliLogFile")
+	logStoreName = os.Getenv("AliLogStoreName")
+	logTopic = os.Getenv("AliLogTopic")
+)
+
 type Log struct {
 	LOG_FILE string
 
@@ -43,17 +54,17 @@ func NewLog(endpoint, accessKeyID, accessKeySecret, name string) {
 	}
 
 	Log := &Log{
-		"./json.log",
-		"sude_dev",
-		"service_role_test",
+		logFile,
+		logStoreName,
+		logTopic,
 		ip,
 		make(chan []string, 100),
 	}
 
-	util.Project.Endpoint = endpoint
-	util.Project.AccessKeyID = accessKeyID
-	util.Project.AccessKeySecret = accessKeySecret
-	util.Project.Name = name
+	util.Project.Endpoint = projectEndpoint
+	util.Project.AccessKeyID = projectAccessKeyID
+	util.Project.AccessKeySecret = projectAccessKeySecret
+	util.Project.Name = projectName
 
 	Log.Start()
 }

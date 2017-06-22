@@ -26,7 +26,7 @@ func NewConn() (conn *zk.Conn, event <-chan zk.Event, err error) {
 	return
 }
 
-// init zookeeper parameter
+// init zookeeper params
 func initZookeeperParams() {
 	zkHost = strings.Split(os.Getenv("ZookeeperHost"), ",")
 
@@ -37,4 +37,16 @@ func initZookeeperParams() {
 	if ZkServerPath == "" {
 		println("zookeeper server path is empty")
 	}
+}
+
+// example
+func RedisExample() {
+	conn, _, err := NewConn()
+
+	println(err)
+
+	result, err := conn.Create("/test_path", nil, zk.FlagEphemeral, zk.WorldACL(zk.PermAll))
+
+	println(result)
+	println(err)
 }

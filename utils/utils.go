@@ -8,7 +8,7 @@ import (
 )
 
 // GetGOPATHs returns all paths in GOPATH variable.
-func GetGOPATHs() []string {
+func GetGoPATHs() []string {
 	gopath := os.Getenv("GOPATH")
 	if gopath == "" && strings.Compare(runtime.Version(), "go1.8") >= 0 {
 		gopath = defaultGOPATH()
