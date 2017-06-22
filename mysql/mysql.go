@@ -5,18 +5,27 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"time"
 	"errors"
+	"github.com/chrisho/mosquito/helper"
+	"log"
 )
 
 var db *gorm.DB
 
-func NewConn(dataSource, prefix string) (*gorm.DB, error) {
+func init() {
+	var err error
+	db, err = NewConn()
+	if err != nil {
+		log.Println(err)
+	}
+}
+func NewConn() (*gorm.DB, error) {
 
 	if db != nil {
 		return db, nil
 	}
 
-	setTablePrefix(prefix)
-	connection, err := gorm.Open("mysql", dataSource)
+	setTablePrefix()
+	connection, err := gorm.Open("mysql", getDatSource())
 	if err != nil {
 		return nil, err
 	}
@@ -35,8 +44,19 @@ func GetConn() (*gorm.DB, error){
 	return db, nil
 }
 
-func setTablePrefix(prefix string) {
+func setTablePrefix() {
 	gorm.DefaultTableNameHandler = func(db *gorm.DB, defaultTableName string) string {
-		return prefix + defaultTableName
+		return helper.GetEnv("MysqlPrefix") + defaultTableName
 	}
+}
+
+func getDatSource() string{
+	dataSourceName := ""
+	dataSourceName += helper.GetEnv("MysqlUser") + ":"
+	dataSourceName += helper.GetEnv("MysqlPassword") + "@"
+	dataSourceName += "tcp(" + helper.GetEnv("MysqlHost") + ")/"
+	dataSourceName += helper.GetEnv("MysqlName") + "?"
+	dataSourceName += helper.GetEnv("MysqlParameters")
+
+	return dataSourceName
 }
