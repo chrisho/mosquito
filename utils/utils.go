@@ -2,6 +2,8 @@ package utils
 
 import (
 	"os"
+	"net"
+	"log"
 	"strings"
 	"runtime"
 	"path/filepath"
@@ -39,4 +41,37 @@ func FILE() string {
 func LINE() int {
 	_, _, line, _ := runtime.Caller(1)
 	return line
+}
+
+func GetLocalMacs() (macs []string) {
+	interfaces, err := net.Interfaces()
+
+	if err != nil {
+		log.Println("Error : " + err.Error())
+	}
+
+	for _, inter := range interfaces {
+		mac := inter.HardwareAddr.String()
+		macs = append(macs, mac)
+	}
+	return
+}
+
+func GetLocalIps() (ips []string) {
+	addrs, err := net.InterfaceAddrs()
+
+	if err != nil {
+		log.Println("Error : " + err.Error())
+	}
+
+	for _, address := range addrs {
+
+		if ipnet, ok := address.(*net.IPNet); ok {
+			if ipnet.IP.To4() != nil {
+				ip := ipnet.IP.String()
+				ips = append(ips, ip)
+			}
+		}
+	}
+	return
 }

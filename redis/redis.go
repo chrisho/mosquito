@@ -12,6 +12,10 @@ var (
 	db       int
 )
 
+func GetRedisClient() (client *redis.Client) {
+	return
+}
+
 // create redis connection
 func NewConn() (conn *redis.Client, err error) {
 
@@ -40,16 +44,4 @@ func initRedisParams() {
 	}
 
 	return
-}
-
-// example
-func RedisExample()  {
-	conn, err := NewConn()
-
-	println(err)
-
-	result, err := conn.Ping().Result()
-
-	println(result)
-	println(err)
 }
