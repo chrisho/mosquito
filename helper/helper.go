@@ -4,6 +4,8 @@ import (
 	"reflect"
 	"os"
 	"log"
+	"strings"
+	"github.com/chrisho/mosquito/utils"
 )
 
 func ReflectThrift(model interface{}, thrift interface{}) {
@@ -24,6 +26,25 @@ func GetEnv(key string) (value string) {
 
 	if value == "" {
 		log.Println(key, " value is empty or not exist")
+	}
+
+	return
+}
+
+func ContainsIp(ipCutSet string) (r string) {
+	r = "127.0.0.1"
+
+	if ipCutSet == "" {
+		return
+	}
+
+	ips := utils.GetLocalIps()
+
+	for _, ip := range ips {
+
+		if ok := strings.Contains(ip, ipCutSet); ok {
+			return ip
+		}
 	}
 
 	return
