@@ -3,18 +3,19 @@ package mosquito
 import (
 	"git.apache.org/thrift.git/lib/go/thrift"
 	"crypto/tls"
+	"github.com/chrisho/mosquito/helper"
 )
 
 func RunServer(serverAddr, serverPort string, processor thrift.TProcessor) (err error){
 	transportFactory := thrift.NewTFramedTransportFactory(thrift.NewTTransportFactory())
 	protocolFactory := thrift.NewTBinaryProtocolFactoryDefault()
 	address := serverAddr + ":" + serverPort
-	ssl := false
+	ssl := helper.GetEnv("SSL")
 
 	var transport thrift.TServerTransport
-	if ssl {
+	if ssl == "true" {
 		cfg := new(tls.Config)
-		if cert, err := tls.LoadX509KeyPair("server.crt", "server.key"); err == nil {
+		if cert, err := tls.LoadX509KeyPair("config/server.crt", "config/server.key"); err == nil {
 			cfg.Certificates = append(cfg.Certificates, cert)
 		} else {
 			return err
