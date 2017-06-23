@@ -6,6 +6,7 @@ import (
 	"github.com/chrisho/mosquito/helper"
 )
 
+
 func RunServer(serverAddr, serverPort string, processor thrift.TProcessor) (err error){
 	transportFactory := thrift.NewTFramedTransportFactory(thrift.NewTTransportFactory())
 	protocolFactory := thrift.NewTBinaryProtocolFactoryDefault()

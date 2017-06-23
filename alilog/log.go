@@ -38,6 +38,10 @@ type Log struct {
 	lineChan chan []string
 }
 
+func init() {
+	NewLog()
+}
+
 func CatchPanic() {
 	if err := recover(); err != nil {
 		log.Error(err)
