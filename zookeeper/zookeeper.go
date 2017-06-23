@@ -9,9 +9,7 @@ import (
 
 var (
 	zkHost       []string
-	ZkTimeout    = 3 * time.Second
-	ZkRootPath   string
-	ZkServerPath string
+	zkTimeout    = 3 * time.Second
 )
 
 func GetZkConn() (conn *zk.Conn) {
@@ -25,7 +23,7 @@ func NewConn() (conn *zk.Conn, event <-chan zk.Event, err error) {
 		initZookeeperParams()
 	}
 
-	conn, event, err = zk.Connect(zkHost, ZkTimeout)
+	conn, event, err = zk.Connect(zkHost, zkTimeout)
 
 	return
 }
@@ -34,11 +32,7 @@ func NewConn() (conn *zk.Conn, event <-chan zk.Event, err error) {
 func initZookeeperParams() {
 	zkHost = strings.Split(os.Getenv("ZookeeperHost"), ",")
 
-	ZkRootPath = os.Getenv("ZkRootPath")
-
-	ZkServerPath = ZkRootPath + os.Getenv("ServerPath")
-
-	if ZkServerPath == "" {
+	if len(zkHost) == 0 {
 		println("zookeeper server path is empty")
 	}
 }

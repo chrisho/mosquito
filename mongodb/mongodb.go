@@ -7,7 +7,6 @@ import (
 )
 
 var (
-	Conn *mgo.Session
 	connStr string
 	db      string
 )
@@ -15,6 +14,10 @@ var (
 type Person struct {
 	Name  string
 	Phone string
+}
+
+func GetMongodbConn() (conn *mgo.Session) {
+	return
 }
 
 // create mongodb connection
