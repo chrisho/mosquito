@@ -6,14 +6,6 @@ import (
 	"github.com/go-redis/redis"
 )
 
-type A struct {}
-
-func function() (a *A) {
-	b := &A{}
-
-	return b
-}
-
 var (
 	host     string
 	password string
