@@ -8,7 +8,9 @@ import (
 	"os"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc/credentials"
+	"github.com/chrisho/mosquito/zookeeper"
 )
+
 const envFile = "/config/conf.env"
 
 var server *grpc.Server
@@ -23,9 +25,9 @@ func init() {
 	}
 }
 
-func GetServer() (*grpc.Server){
+func GetServer() (*grpc.Server) {
 	var opts []grpc.ServerOption
-	creds, err := credentials.NewServerTLSFromFile(path + "/config/server.crt", path + "/config/server.key")
+	creds, err := credentials.NewServerTLSFromFile(path+"/config/server.crt", path+"/config/server.key")
 	if err != nil {
 		grpclog.Errorf("Failed to generate credentials %v", err)
 	}
@@ -37,19 +39,27 @@ func GetServer() (*grpc.Server){
 }
 
 func RunServer() {
-	listen_addr := ":" + helper.GetEnv("ServerPort")
+	listen_addr := zookeeper.GetServerAddress()
 	listen, err := net.Listen("tcp", listen_addr)
 	if err != nil {
 		grpclog.Error(err)
 	}
-	server.Serve(listen)
+	err = server.Serve(listen)
+
+	if err != nil {
+		grpclog.Fatal(err)
+	}
+	_, err = zookeeper.RegMicroServer()
+
+	if err != nil {
+		grpclog.Fatal(err)
+	}
 }
 
 func GetClientConn() (*grpc.ClientConn) {
 	address := helper.GetEnv("ServerAddress") + ":" + helper.GetEnv("ServerPort")
 	var opts []grpc.DialOption
 	var creds credentials.TransportCredentials
-
 
 	creds, err := credentials.NewClientTLSFromFile("config/server.crt",
 		"sude365.com")
@@ -64,7 +74,6 @@ func GetClientConn() (*grpc.ClientConn) {
 
 	return conn
 }
-
 
 /*
 func RunServer(serverAddr, serverPort string, processor thrift.TProcessor) (err error){

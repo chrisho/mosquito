@@ -101,7 +101,7 @@ func createServerPath() {
 // create Ephemeral server path : address:port
 func createServerAddressPath() {
 
-	serverAddressPath := zkServerPath + "/" + getServerAddress()
+	serverAddressPath := zkServerPath + "/" + GetServerAddress()
 
 	if ok, _, _ := zkConn.Exists(serverAddressPath); !ok {
 		_, err := zkConn.Create(serverAddressPath, nil, zk.FlagEphemeral, zk.AuthACL(zk.PermRead))
@@ -112,7 +112,7 @@ func createServerAddressPath() {
 	}
 }
 
-func getServerAddress() (ipAddress string) {
+func GetServerAddress() (ipAddress string) {
 	serverAddress := helper.GetEnv("ServerAddress")
 	serverPort := helper.GetEnv("ServerPort")
 
