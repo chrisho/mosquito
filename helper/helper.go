@@ -8,6 +8,7 @@ import (
 	"github.com/chrisho/mosquito/utils"
 	"github.com/asaskevich/govalidator"
 	"google.golang.org/grpc/grpclog"
+	"reflect"
 )
 
 func GetEnv(key string) (value string) {
@@ -39,6 +40,18 @@ func ContainsIp(ipCutSet string) (r string) {
 	return
 }
 
+func Reflect(model interface{}, dest interface{}) {
+
+	destValue := reflect.ValueOf(dest).Elem()
+	destType := destValue.Type()
+
+	modelValue := reflect.ValueOf(model).Elem()
+
+	for i := 0; i < destValue.NumField(); i++ {
+		name := destType.Field(i).Name
+		destValue.Field(i).Set(modelValue.FieldByName(name))
+	}
+}
 
 func GetServerAddress() (ipAddress string) {
 	serverAddress := GetEnv("ServerAddress")

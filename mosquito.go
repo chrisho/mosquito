@@ -1,14 +1,14 @@
 package mosquito
 
 import (
-	"net"
-	"google.golang.org/grpc/grpclog"
-	"google.golang.org/grpc"
 	"github.com/chrisho/mosquito/helper"
-	"os"
-	"github.com/joho/godotenv"
-	"google.golang.org/grpc/credentials"
 	"github.com/chrisho/mosquito/zookeeper"
+	"github.com/joho/godotenv"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/grpclog"
+	"net"
+	"os"
 )
 
 const envFile = "/config/conf.env"
@@ -25,7 +25,7 @@ func init() {
 	}
 }
 
-func GetServer() (*grpc.Server) {
+func GetServer() *grpc.Server {
 	var opts []grpc.ServerOption
 	if helper.GetEnv("SSL") == "true" {
 		creds, err := credentials.NewServerTLSFromFile(path+"/config/server.crt", path+"/config/server.key")
@@ -41,42 +41,43 @@ func GetServer() (*grpc.Server) {
 
 func RunServer() {
 	listen_addr := helper.GetServerAddress()
+
+	grpclog.Info("server address is ", listen_addr)
+
+	_, err := zookeeper.RegMicroServer()
+
+	if err != nil {
+		grpclog.Fatal("reg server fail, ", err)
+	}
+
 	listen, err := net.Listen("tcp", listen_addr)
 	if err != nil {
 		grpclog.Error(err)
 	}
+
 	err = server.Serve(listen)
-
-	if err != nil {
-		grpclog.Fatal(err)
-	}
-	_, err = zookeeper.RegMicroServer()
-
 	if err != nil {
 		grpclog.Fatal(err)
 	}
 }
 
-func GetClientConn() (*grpc.ClientConn) {
-	address := helper.GetEnv("ServerAddress") + ":" + helper.GetEnv("ServerPort")
+func GetClientConn() (conn *grpc.ClientConn, err error) {
+	address := helper.GetServerAddress()
 	var opts []grpc.DialOption
 	var creds credentials.TransportCredentials
-	var err error
 
 	if helper.GetEnv("SSL") == "true" {
-		creds, err = credentials.NewClientTLSFromFile("config/server.crt",
-			"sude365.com")
+		creds, err = credentials.NewClientTLSFromFile("config/server.crt", "sude365.com")
 		if err != nil {
 			panic(err)
 		}
 	}
-	opts = append(opts, grpc.WithTransportCredentials(creds),
-		grpc.WithInsecure())
+	opts = append(opts, grpc.WithTransportCredentials(creds), grpc.WithInsecure())
 
-	conn, err := grpc.Dial(address, opts...)
+	conn, err = grpc.Dial(address, opts...)
 	if err != nil {
 		grpclog.Error(err)
 	}
 
-	return conn
+	return
 }
