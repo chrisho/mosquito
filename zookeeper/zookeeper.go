@@ -5,9 +5,7 @@ import (
 	"log"
 	"time"
 	"strings"
-	"errors"
 	"github.com/samuel/go-zookeeper/zk"
-	"github.com/asaskevich/govalidator"
 	"github.com/chrisho/mosquito/helper"
 )
 
@@ -101,7 +99,7 @@ func createServerPath() {
 // create Ephemeral server path : address:port
 func createServerAddressPath() {
 
-	serverAddressPath := zkServerPath + "/" + GetServerAddress()
+	serverAddressPath := zkServerPath + "/" + helper.GetServerAddress()
 
 	if ok, _, _ := zkConn.Exists(serverAddressPath); !ok {
 		_, err := zkConn.Create(serverAddressPath, nil, zk.FlagEphemeral, zk.AuthACL(zk.PermRead))
@@ -112,27 +110,3 @@ func createServerAddressPath() {
 	}
 }
 
-func GetServerAddress() (ipAddress string) {
-	serverAddress := helper.GetEnv("ServerAddress")
-	serverPort := helper.GetEnv("ServerPort")
-
-	if serverAddress == "" {
-		log.Println(errors.New("serverAddress is empty or not exist"))
-		serverAddress = "127.0.0.1"
-	}
-
-	if ok := govalidator.IsIP(serverAddress); !ok {
-
-		ipCutSet := strings.TrimRight(serverAddress, ".*")
-
-		serverAddress = helper.ContainsIp(ipCutSet)
-	}
-
-	if serverPort == "" {
-		ipAddress = serverAddress
-	} else {
-		ipAddress = serverAddress + ":" + serverPort
-	}
-
-	return
-}

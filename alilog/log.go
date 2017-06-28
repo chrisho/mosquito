@@ -9,11 +9,10 @@ import (
 	"encoding/json"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/aliyun/aliyun-log-go-sdk/example/util"
 	"github.com/gogo/protobuf/proto"
 	sls "github.com/aliyun/aliyun-log-go-sdk"
+	log "github.com/sirupsen/logrus"
 )
 
 // init log params
