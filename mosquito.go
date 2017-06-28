@@ -27,19 +27,20 @@ func init() {
 
 func GetServer() (*grpc.Server) {
 	var opts []grpc.ServerOption
-	creds, err := credentials.NewServerTLSFromFile(path+"/config/server.crt", path+"/config/server.key")
-	if err != nil {
-		grpclog.Errorf("Failed to generate credentials %v", err)
+	if helper.GetEnv("SSL") == "true" {
+		creds, err := credentials.NewServerTLSFromFile(path+"/config/server.crt", path+"/config/server.key")
+		if err != nil {
+			grpclog.Errorf("Failed to generate credentials %v", err)
+		}
+		opts = []grpc.ServerOption{grpc.Creds(creds)}
 	}
-	opts = []grpc.ServerOption{grpc.Creds(creds)}
-
 	server = grpc.NewServer(opts...)
 
 	return server
 }
 
 func RunServer() {
-	listen_addr := zookeeper.GetServerAddress()
+	listen_addr := helper.GetServerAddress()
 	listen, err := net.Listen("tcp", listen_addr)
 	if err != nil {
 		grpclog.Error(err)
@@ -60,10 +61,15 @@ func GetClientConn() (*grpc.ClientConn) {
 	address := helper.GetEnv("ServerAddress") + ":" + helper.GetEnv("ServerPort")
 	var opts []grpc.DialOption
 	var creds credentials.TransportCredentials
+	var err error
 
-	creds, err := credentials.NewClientTLSFromFile("config/server.crt",
-		"sude365.com")
-
+	if helper.GetEnv("SSL") == "true" {
+		creds, err = credentials.NewClientTLSFromFile("config/server.crt",
+			"sude365.com")
+		if err != nil {
+			panic(err)
+		}
+	}
 	opts = append(opts, grpc.WithTransportCredentials(creds),
 		grpc.WithInsecure())
 
@@ -74,35 +80,3 @@ func GetClientConn() (*grpc.ClientConn) {
 
 	return conn
 }
-
-/*
-func RunServer(serverAddr, serverPort string, processor thrift.TProcessor) (err error){
-	transportFactory := thrift.NewTFramedTransportFactory(thrift.NewTTransportFactory())
-	protocolFactory := thrift.NewTBinaryProtocolFactoryDefault()
-	address := serverAddr + ":" + serverPort
-	ssl := helper.GetEnv("SSL")
-
-	var transport thrift.TServerTransport
-	if ssl == "true" {
-		cfg := new(tls.Config)
-		if cert, err := tls.LoadX509KeyPair("config/server.crt", "config/server.key"); err == nil {
-			cfg.Certificates = append(cfg.Certificates, cert)
-		} else {
-			return err
-		}
-		transport, err = thrift.NewTSSLServerSocket(address, cfg)
-	} else {
-		transport, err = thrift.NewTServerSocket(address)
-	}
-
-	if err != nil {
-		return err
-	}
-	//handler := &serviceHandler.UserHandler{}
-	//processor := thriftHandler.NewSdUserServiceProcessor(handler)
-	server := thrift.NewTSimpleServer4(processor, transport, transportFactory, protocolFactory)
-
-	println("Starting the simple server... on ", address)
-	return server.Serve()
-}
-*/
