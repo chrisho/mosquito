@@ -72,7 +72,7 @@ func GetClientConn() (conn *grpc.ClientConn, err error) {
 			panic(err)
 		}
 	}
-	opts = append(opts, grpc.WithTransportCredentials(creds), grpc.WithInsecure())
+	opts = append(opts, grpc.WithTransportCredentials(creds))
 
 	conn, err = grpc.Dial(address, opts...)
 	if err != nil {
