@@ -30,6 +30,7 @@ func NewConn() (conn *zk.Conn, event <-chan zk.Event, err error) {
 
 	conn, event, err = zk.Connect(zkHost, zkTimeout)
 
+	zkConn = conn
 	addAuth()
 
 	return
