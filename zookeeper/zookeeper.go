@@ -30,6 +30,8 @@ func NewConn() (conn *zk.Conn, event <-chan zk.Event, err error) {
 
 	conn, event, err = zk.Connect(zkHost, zkTimeout)
 
+	addAuth()
+
 	return
 }
 
@@ -48,7 +50,6 @@ func initZookeeperParams() {
 // register server into zookeeper
 func RegMicroServer() (children []string, err error) {
 	zkConn, _, _ = NewConn()
-	addAuth()
 	createRootPath()
 	createServerPath()
 	createServerAddressPath()
