@@ -1,29 +1,29 @@
 package alilog
 
 import (
-	"os"
+	"bufio"
+	"encoding/json"
 	"io"
 	"net"
-	"bufio"
-	"time"
-	"encoding/json"
+	"os"
 	"strings"
+	"time"
 
+	sls "github.com/aliyun/aliyun-log-go-sdk"
 	"github.com/aliyun/aliyun-log-go-sdk/example/util"
 	"github.com/gogo/protobuf/proto"
-	sls "github.com/aliyun/aliyun-log-go-sdk"
 	log "github.com/sirupsen/logrus"
 )
 
 // init log params
 var (
-	projectEndpoint = os.Getenv("AliLogEndpoint")
-	projectAccessKeyID = os.Getenv("AliLogAccessKeyID")
+	projectEndpoint        = os.Getenv("AliLogEndpoint")
+	projectAccessKeyID     = os.Getenv("AliLogAccessKeyID")
 	projectAccessKeySecret = os.Getenv("AliLogAccessKeySecret")
-	projectName = os.Getenv("AliLogName")
-	logFile = os.Getenv("AliLogFile")
-	logStoreName = os.Getenv("AliLogStoreName")
-	logTopic = os.Getenv("AliLogTopic")
+	projectName            = os.Getenv("AliLogName")
+	logFile                = os.Getenv("AliLogFile")
+	logStoreName           = os.Getenv("AliLogStoreName")
+	logTopic               = os.Getenv("AliLogTopic")
 )
 
 type Log struct {

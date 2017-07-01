@@ -1,12 +1,12 @@
 package mysql
 
 import (
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"time"
 	"errors"
 	"github.com/chrisho/mosquito/helper"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"log"
+	"time"
 )
 
 var db *gorm.DB
@@ -38,7 +38,7 @@ func newConn() (*gorm.DB, error) {
 	return db, err
 }
 
-func GetConn() (*gorm.DB, error){
+func GetConn() (*gorm.DB, error) {
 	if db == nil {
 		return nil, errors.New("connection is not exist")
 	}
@@ -51,7 +51,7 @@ func setTablePrefix() {
 	}
 }
 
-func getDataSource() string{
+func getDataSource() string {
 	dataSourceName := ""
 	dataSourceName += helper.GetEnv("MysqlUser") + ":"
 	dataSourceName += helper.GetEnv("MysqlPassword") + "@"

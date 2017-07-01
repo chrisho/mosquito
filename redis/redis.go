@@ -1,9 +1,9 @@
 package redis
 
 import (
+	"github.com/go-redis/redis"
 	"os"
 	"strconv"
-	"github.com/go-redis/redis"
 )
 
 var (

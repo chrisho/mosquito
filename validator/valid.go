@@ -2,8 +2,8 @@ package validator
 
 import (
 	"github.com/asaskevich/govalidator"
-	"strconv"
 	"log"
+	"strconv"
 )
 
 func init() {

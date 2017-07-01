@@ -1,9 +1,9 @@
 package mongodb
 
 import (
+	"gopkg.in/mgo.v2"
 	"os"
 	"strings"
-	"gopkg.in/mgo.v2"
 )
 
 var (

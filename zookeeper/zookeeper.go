@@ -1,17 +1,19 @@
 package zookeeper
 
 import (
-	"os"
-	"log"
-	"time"
-	"strings"
-	"github.com/samuel/go-zookeeper/zk"
 	"github.com/chrisho/mosquito/helper"
+	"github.com/samuel/go-zookeeper/zk"
+	"log"
+	"os"
+	"strconv"
+	"strings"
+	"time"
 )
 
 var (
 	zkConn       *zk.Conn
 	zkHost       []string
+	acl          []zk.ACL
 	zkTimeout    = 3 * time.Second
 	zkRootPath   string
 	zkServerPath string
@@ -50,6 +52,12 @@ func initZookeeperParams() {
 
 // register server into zookeeper
 func RegMicroServer() (children []string, err error) {
+
+	if helper.GetEnv("Zookeeper") != "true" {
+		log.Println("local develop, do not reg micro server into zookeeper")
+		return
+	}
+
 	zkConn, _, _ = NewConn()
 	createRootPath()
 	createServerPath()
@@ -70,6 +78,24 @@ func addAuth() {
 	}
 }
 
+// get acl : zk will be set this acl
+func getAcl() []zk.ACL {
+
+	if len(acl) > 0 {
+		return acl
+	}
+
+	credential := strings.Split(helper.GetEnv("ZkAuthCredential"), ":")
+
+	if len(credential) <= 1 {
+		acl = zk.AuthACL(zk.PermAll)
+	} else {
+		acl = zk.DigestACL(zk.PermAll, credential[0], credential[1])
+	}
+
+	return acl
+}
+
 // exist rootPath or create rootPath
 func createRootPath() {
 
@@ -78,7 +104,7 @@ func createRootPath() {
 	}
 
 	if ok, _, _ := zkConn.Exists(zkRootPath); !ok {
-		_, err := zkConn.Create(zkRootPath, nil, 0, zk.AuthACL(zk.PermAll))
+		_, err := zkConn.Create(zkRootPath, nil, 0, getAcl())
 
 		if err != nil {
 			log.Println(err)
@@ -89,8 +115,12 @@ func createRootPath() {
 // exist serverPath or create serverPath
 func createServerPath() {
 
+	if zkServerPath == "" {
+		return
+	}
+
 	if ok, _, _ := zkConn.Exists(zkServerPath); !ok {
-		_, err := zkConn.Create(zkServerPath, nil, 0, zk.AuthACL(zk.PermAll))
+		_, err := zkConn.Create(zkServerPath, nil, 0, getAcl())
 
 		if err != nil {
 			log.Println(err)
@@ -101,14 +131,84 @@ func createServerPath() {
 // create Ephemeral server path : address:port
 func createServerAddressPath() {
 
-	serverAddressPath := zkServerPath + "/" + helper.GetServerAddress()
+	exist, index, address := checkServerAddress()
+
+	if exist {
+		log.Printf("server (%s) is exist \n", address)
+		return
+	}
+
+	serverAddressPath := zkServerPath + "/" + index
 
 	if ok, _, _ := zkConn.Exists(serverAddressPath); !ok {
-		_, err := zkConn.Create(serverAddressPath, nil, zk.FlagEphemeral, zk.AuthACL(zk.PermRead))
+		_, err := zkConn.Create(serverAddressPath, []byte(address), zk.FlagEphemeral, getAcl())
 
 		if err != nil {
 			log.Println(err)
 		}
 	}
+
+	checkServerAddress()
 }
 
+func checkServerAddress() (exist bool, index, address string) {
+
+	exist = false
+	index = "1"
+	address = helper.GetServerAddress()
+
+	// micro server path is set ?
+	if zkServerPath == "" {
+		zkServerPath = "/"
+	}
+
+	children, _, err := zkConn.Children(zkServerPath)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	childLen := len(children)
+
+	if childLen == 0 {
+		return
+	} else if childLen == 1 {
+		if children[0] == "zookeeper" {
+			return
+		}
+	}
+
+	exist, index = existServerAddress(children, address)
+
+	return
+}
+
+func existServerAddress(children []string, address string) (exist bool, index string) {
+
+	var maxIndex int = 0
+
+	for _, path := range children {
+		if path == "zookeeper" {
+			continue
+		}
+		bytes, _, _ := zkConn.Get(zkServerPath + "/" + path)
+		data := string(bytes)
+
+		if data == address {
+			exist = true
+			break
+		}
+
+		index, _ := strconv.Atoi(path)
+
+		if maxIndex < index {
+			maxIndex = index
+		}
+	}
+
+	maxIndex += 1
+
+	index = strconv.Itoa(maxIndex)
+
+	return
+}

@@ -1,12 +1,12 @@
 package utils
 
 import (
-	"os"
-	"net"
 	"log"
-	"strings"
-	"runtime"
+	"net"
+	"os"
 	"path/filepath"
+	"runtime"
+	"strings"
 )
 
 // GetGOPATHs returns all paths in GOPATH variable.

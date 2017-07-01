@@ -40,15 +40,16 @@ func GetServer() *grpc.Server {
 }
 
 func RunServer() {
-	listen_addr := helper.GetServerAddress()
-
-	grpclog.Info("server address is ", listen_addr)
 
 	_, err := zookeeper.RegMicroServer()
 
 	if err != nil {
 		grpclog.Fatal("reg server fail, ", err)
 	}
+
+	listen_addr := helper.GetServerAddress()
+
+	grpclog.Info("server address is ", listen_addr)
 
 	listen, err := net.Listen("tcp", listen_addr)
 	if err != nil {
