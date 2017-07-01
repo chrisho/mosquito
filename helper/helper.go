@@ -21,6 +21,7 @@ func GetEnv(key string) (value string) {
 	return
 }
 
+// get ip if it contains ipCutSet
 func ContainsIp(ipCutSet string) (r string) {
 	r = "127.0.0.1"
 
@@ -40,6 +41,7 @@ func ContainsIp(ipCutSet string) (r string) {
 	return
 }
 
+// two struct be similar, reflect model struct to destination struct
 func Reflect(model interface{}, dest interface{}) {
 
 	destValue := reflect.ValueOf(dest).Elem()
@@ -53,6 +55,7 @@ func Reflect(model interface{}, dest interface{}) {
 	}
 }
 
+// get server address from config file *.env
 func GetServerAddress() (ipAddress string) {
 	serverAddress := GetEnv("ServerAddress")
 	serverPort := GetEnv("ServerPort")

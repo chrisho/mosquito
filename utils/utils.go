@@ -43,6 +43,7 @@ func LINE() int {
 	return line
 }
 
+// get computer macs
 func GetLocalMacs() (macs []string) {
 	interfaces, err := net.Interfaces()
 
@@ -57,6 +58,7 @@ func GetLocalMacs() (macs []string) {
 	return
 }
 
+// get computer ips
 func GetLocalIps() (ips []string) {
 	addrs, err := net.InterfaceAddrs()
 

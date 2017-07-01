@@ -41,6 +41,7 @@ func initRedisParams() {
 
 	if host == "" {
 		println("Redis host Is Empty")
+		host = "127.0.0.1:6379"
 	}
 
 	return

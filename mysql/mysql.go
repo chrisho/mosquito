@@ -26,7 +26,7 @@ func newConn() (*gorm.DB, error) {
 	}
 
 	setTablePrefix()
-	connection, err := gorm.Open("mysql", getDatSource())
+	connection, err := gorm.Open("mysql", getDataSource())
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func setTablePrefix() {
 	}
 }
 
-func getDatSource() string{
+func getDataSource() string{
 	dataSourceName := ""
 	dataSourceName += helper.GetEnv("MysqlUser") + ":"
 	dataSourceName += helper.GetEnv("MysqlPassword") + "@"

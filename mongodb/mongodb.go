@@ -45,32 +45,39 @@ func initMongodbParams() {
 
 	hostLen, firstHost, anotherHost := len(hostList), "", ""
 
+	// set default redis host
 	if hostLen < 1 {
-		println("mongodb host is empty")
+		println("mongodb host is empty, use default address 127.0.0.1:6379 ")
+		firstHost = "127.0.0.1:27017"
 	} else {
 		firstHost = hostList[0]
 	}
 
+	// has many redis address ?
 	if hostLen > 1 {
 		for i := 1; i < hostLen; i++ {
 			anotherHost += "," + hostList[i]
 		}
 	}
 
+	// join connStr
 	if user == "" {
 		connStr = firstHost
 	} else {
 		connStr = user + ":" + password + "@" + firstHost
 	}
 
+	// join connStr
 	if anotherHost != "" {
 		connStr += anotherHost
 	}
 
+	// join connStr and set use db
 	if db != "" {
 		connStr += "/" + db
 	}
 
+	// join connStr and set use options
 	if options != "" {
 		connStr += "?" + options
 	}
