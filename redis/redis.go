@@ -19,6 +19,13 @@ func GetRedisClient() (client *redis.Client) {
 // create redis connection
 func NewConn() (conn *redis.Client, err error) {
 
+	conn, err = NewConnDB(0)
+
+	return
+}
+
+func NewConnDB(select_db int) (conn *redis.Client, err error) {
+
 	if host == "" {
 		initRedisParams()
 	}
@@ -26,7 +33,7 @@ func NewConn() (conn *redis.Client, err error) {
 	conn = redis.NewClient(&redis.Options{
 		Addr:     host,
 		Password: password,
-		DB:       db,
+		DB:       select_db,
 	})
 
 	return
