@@ -3,12 +3,14 @@ package mosquito
 import (
 	"github.com/chrisho/mosquito/helper"
 	"github.com/chrisho/mosquito/zookeeper"
+	"github.com/chrisho/mosquito/redis"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/grpclog"
 	"net"
 	"os"
+	"strconv"
 )
 
 const envFile = "/config/conf.env"
@@ -62,7 +64,41 @@ func RunServer() {
 	}
 }
 
-func GetClientConn() (conn *grpc.ClientConn, err error) {
+var prefix_key = "zk:"
+
+func GetClientConn(service_name string) (client *grpc.ClientConn, err error) {
+
+	db, _ := strconv.Atoi(helper.GetEnv("ZkRedisDb"))
+	redisClient, err := redis.NewConnDB(db)
+	if err != nil {
+		return
+	}
+	defer redisClient.Close()
+
+	addr, err := redisClient.Get(prefix_key + service_name).Result()
+	if err != nil {
+		return
+	}
+
+	var opts []grpc.DialOption
+	var creds credentials.TransportCredentials
+
+	if helper.GetEnv("SSL") == "true" {
+		creds, err = credentials.NewClientTLSFromFile("config/server.crt", "sude365.com")
+		if err != nil {
+			return
+		}
+		opts = append(opts, grpc.WithTransportCredentials(creds))
+	} else {
+		opts = append(opts, grpc.WithInsecure())
+	}
+
+	client, err = grpc.Dial(addr, opts...)
+	return
+}
+
+func GetLocalClientConn() (conn *grpc.ClientConn, err error) {
+
 	address := helper.GetServerAddress()
 	var opts []grpc.DialOption
 	var creds credentials.TransportCredentials
