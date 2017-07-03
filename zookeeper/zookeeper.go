@@ -53,11 +53,6 @@ func initZookeeperParams() {
 // register server into zookeeper
 func RegMicroServer() (children []string, err error) {
 
-	if helper.GetEnv("Zookeeper") != "true" {
-		log.Println("local develop, do not reg micro server into zookeeper")
-		return
-	}
-
 	zkConn, _, _ = NewConn()
 	createRootPath()
 	createServerPath()

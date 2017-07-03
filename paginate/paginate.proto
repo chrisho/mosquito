@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package paginate;
+
+//option go_package = "github.com/chrisho/proto/paginate;paginate";
+
+// Action : PreviousPage, NextPage
+// Action default NextPage
+message PageOptions {
+    int32 PageSize = 2;
+    int32 MaxId = 3;
+    string Action = 4;
+}
+
+// total TotalRecouds entries， total TotalPages pages
+message PageResult {
+    int32 TotalRecords = 1;
+    int32 TotalPages = 2;
+    int32 PageSize = 3;
+    int32 MaxId = 4;
+    int32 MinId = 5;
+}
