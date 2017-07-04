@@ -66,6 +66,9 @@ func ContainsIp(ipCutSet string) (r string) {
 func GetServerAddress() (ipAddress string) {
 	serverAddress := GetEnv("ServerAddress")
 	serverPort := GetEnv("ServerPort")
+	if serverPort == "" {
+		grpclog.Fatal("no any server ports")
+	}
 
 	if serverAddress == "" {
 		grpclog.Info("serverAddress is empty or not exist")
@@ -79,11 +82,7 @@ func GetServerAddress() (ipAddress string) {
 		serverAddress = ContainsIp(ipCutSet)
 	}
 
-	if serverPort == "" {
-		grpclog.Fatal("no any server ports")
-	} else {
-		ipAddress = serverAddress + ":" + serverPort
-	}
+	ipAddress = serverAddress + ":" + serverPort
 
 	return
 }
