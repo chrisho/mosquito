@@ -49,10 +49,7 @@ func RunServer() {
 		grpclog.Fatal("reg server fail, ", err)
 	}
 
-	listen_addr, inetIP := helper.GetServerAddress()
-	if listen_addr != inetIP {
-		listen_addr = inetIP
-	}
+	listen_addr := helper.GetServerAddress()
 
 	grpclog.Info("server address is ", listen_addr)
 
@@ -103,7 +100,7 @@ func GetClientConn(service_name string) (client *grpc.ClientConn, err error) {
 
 func GetLocalClientConn() (conn *grpc.ClientConn, err error) {
 
-	address, _ := helper.GetServerAddress()
+	address := helper.GetServerAddress()
 
 	var opts []grpc.DialOption
 	var creds credentials.TransportCredentials

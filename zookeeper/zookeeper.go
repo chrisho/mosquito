@@ -148,7 +148,10 @@ func checkServerAddress() (exist bool, index, address string) {
 
 	exist = false
 	index = "1"
-	address, _ = helper.GetServerAddress()
+	address = helper.GetEnv("ServerRegisterIP")
+	if address == "" {
+		address = helper.GetServerAddress()
+	}
 
 	// micro server path is set ?
 	if zkServerPath == "" {

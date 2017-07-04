@@ -10,6 +10,7 @@ import (
 	"reflect"
 	"strconv"
 	"time"
+	"github.com/asaskevich/govalidator"
 )
 
 const (
@@ -62,8 +63,7 @@ func ContainsIp(ipCutSet string) (r string) {
 }
 
 // get server address from config file *.env
-// 返回监听IP和网卡IP，假设监听IP不存在则网卡IP为127.0.0.1
-func GetServerAddress() (ipAddress string, inetIP string) {
+func GetServerAddress() (ipAddress string) {
 	serverAddress := GetEnv("ServerAddress")
 	serverPort := GetEnv("ServerPort")
 
@@ -72,16 +72,17 @@ func GetServerAddress() (ipAddress string, inetIP string) {
 		serverAddress = "127.0.0.1"
 	}
 
-	ipCutSet := strings.TrimRight(serverAddress, ".*") // IP前叙匹配方式
-	inetIP = ContainsIp(ipCutSet)
+	if ok := govalidator.IsIP(serverAddress); !ok {
+
+		ipCutSet := strings.TrimRight(serverAddress, ".*")
+
+		serverAddress = ContainsIp(ipCutSet)
+	}
 
 	if serverPort == "" {
-		ipAddress = serverAddress + ":" + DEFAULTPORT
+		ipAddress = serverAddress
 	} else {
 		ipAddress = serverAddress + ":" + serverPort
-		if inetIP != ipAddress {
-			inetIP = ":" + serverPort
-		}
 	}
 
 	return
