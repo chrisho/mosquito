@@ -4,15 +4,17 @@ package paginate;
 
 //option go_package = "github.com/chrisho/proto/paginate;paginate";
 
-// Action : PreviousPage, NextPage
-// Action default NextPage
+// Action : 1 == NextPage , 0 == PreviousPage
+// default Action  NextPage
+// default MaxId 0
+//
 message PageOptions {
     int32 PageSize = 2;
     int32 MaxId = 3;
-    string Action = 4;
+    int32 Action = 4;
 }
 
-// total TotalRecouds entries， total TotalPages pages
+// total TotalRecords entries , total TotalPages pages
 message PageResult {
     int32 TotalRecords = 1;
     int32 TotalPages = 2;
