@@ -11,7 +11,6 @@ import (
 	"net"
 	"os"
 	"strconv"
-	"fmt"
 )
 
 const envFile = "/config/conf.env"
