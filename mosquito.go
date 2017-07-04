@@ -103,6 +103,7 @@ func GetClientConn(service_name string) (client *grpc.ClientConn, err error) {
 func GetLocalClientConn() (conn *grpc.ClientConn, err error) {
 
 	address, _ := helper.GetServerAddress()
+
 	var opts []grpc.DialOption
 	var creds credentials.TransportCredentials
 

@@ -4,21 +4,29 @@ package paginate;
 
 //option go_package = "github.com/chrisho/proto/paginate;paginate";
 
+// PaginateMode : MaxId or PageNumber, default MaxId
+// PaginateMode ： 0 == PageNumber , 1 == MaxId
+// ------------------------------------------------------------
 // Action : 1 == NextPage , 0 == PreviousPage
 // default Action  NextPage
 // default MaxId 0
-//
+// default first page : select * from table order by id desc limit 0,PageSize
 message PageOptions {
+    int32 PaginateMode = 1;
     int32 PageSize = 2;
     int32 MaxId = 3;
     int32 Action = 4;
+    int32 PageNumber = 5;
 }
 
 // total TotalRecords entries , total TotalPages pages
 message PageResult {
-    int32 TotalRecords = 1;
-    int32 TotalPages = 2;
-    int32 PageSize = 3;
-    int32 MaxId = 4;
-    int32 MinId = 5;
+    string PaginateMode = 1;
+    int32 TotalRecords = 2;
+    int32 TotalPages = 3;
+    int32 PageSize = 4;
+    int32 MaxId = 5;
+    int32 MinId = 6;
+    int32 PageNumber = 7;
+    string Action = 8;
 }
