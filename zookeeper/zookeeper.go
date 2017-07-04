@@ -142,8 +142,6 @@ func createServerAddressPath() {
 			log.Println(err)
 		}
 	}
-
-	checkServerAddress()
 }
 
 func checkServerAddress() (exist bool, index, address string) {

@@ -13,10 +13,11 @@ import (
 )
 
 const (
+	DEFAULTPORT    = "19000" // default port 19000
 	YYYYMMDDHHIISS = "2006-01-02 15:04:05"
-	YYYYMMDDHHII = "2006-01-02 15:04"
-	YYYYMMDDHH = "2006-01-02 15"
-	YYYYMMDD = "2006-01-02"
+	YYYYMMDDHHII   = "2006-01-02 15:04"
+	YYYYMMDDHH     = "2006-01-02 15"
+	YYYYMMDD       = "2006-01-02"
 )
 
 func GetEnv(key string) (value string) {
@@ -24,23 +25,6 @@ func GetEnv(key string) (value string) {
 
 	if value == "" {
 		log.Println(key, " value is empty or not exist")
-	}
-
-	return
-}
-
-// get ip if it contains ipCutSet
-// 对比指向IP是否存在于真实IP中
-func ContainsIp(ipCutSet string) (r string) {
-	r = "127.0.0.1"
-
-	ips := utils.GetLocalIps()
-
-	for _, ip := range ips {
-
-		if ok := strings.Contains(ip, ipCutSet); ok {
-			return ip
-		}
 	}
 
 	return
@@ -60,6 +44,23 @@ func Reflect(model interface{}, dest interface{}) {
 	}
 }
 
+// get ip if it contains ipCutSet
+// 对比指向IP是否存在于真实IP中
+func ContainsIp(ipCutSet string) (r string) {
+	r = "127.0.0.1"
+
+	ips := utils.GetLocalIps()
+
+	for _, ip := range ips {
+
+		if ok := strings.Contains(ip, ipCutSet); ok {
+			return ip
+		}
+	}
+
+	return
+}
+
 // get server address from config file *.env
 // 返回监听IP和网卡IP，假设监听IP不存在则网卡IP为127.0.0.1
 func GetServerAddress() (ipAddress string, inetIP string) {
@@ -71,11 +72,11 @@ func GetServerAddress() (ipAddress string, inetIP string) {
 		serverAddress = "127.0.0.1"
 	}
 
-	ipCutSet := strings.TrimRight(serverAddress, ".*")  // IP前叙匹配方式
+	ipCutSet := strings.TrimRight(serverAddress, ".*") // IP前叙匹配方式
 	inetIP = ContainsIp(ipCutSet)
 
 	if serverPort == "" {
-		ipAddress = serverAddress
+		ipAddress = serverAddress + ":" + DEFAULTPORT
 	} else {
 		ipAddress = serverAddress + ":" + serverPort
 		inetIP = inetIP + ":" + serverPort
@@ -84,14 +85,21 @@ func GetServerAddress() (ipAddress string, inetIP string) {
 	return
 }
 
-// RFC3339 time string to format Y-m-d H:i
+// RFC3339 time string to format Y-m-d H:i,Y-m-d H ...
 func RFC3339Time2Date(timeStr, dateLayout string) string {
 	timestamp, _ := time.ParseInLocation(time.RFC3339, timeStr, time.Local)
 
 	return timestamp.Format(dateLayout)
 }
 
-// timestamp to format Y-m-d H:i:s
+// change date to format Y-m-d H:i,Y-m-d H ...
+func Date2Date(inputDateLayout, inputDate, resultDateLayout string) string {
+	timestamp, _ := time.ParseInLocation(inputDateLayout, inputDate, time.Local)
+
+	return timestamp.Format(resultDateLayout)
+}
+
+//  date to timestamp
 func Date2Timestamp(dateLayout, date string) int64 {
 	localTime, _ := time.ParseInLocation(dateLayout, date, time.Local)
 
