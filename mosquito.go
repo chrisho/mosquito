@@ -67,7 +67,7 @@ func RunServer() {
 	}
 }
 
-var prefix_key = "zk:"
+var prefixKey = "zk:"
 
 func GetClientConn(service_name string) (client *grpc.ClientConn, err error) {
 
@@ -77,8 +77,9 @@ func GetClientConn(service_name string) (client *grpc.ClientConn, err error) {
 		return
 	}
 	defer redisClient.Close()
+	service_name = prefixKey + helper.GetEnv("ZkRootPath") + "/" + service_name
 
-	addr, err := redisClient.Get(prefix_key + service_name).Result()
+	addr, err := redisClient.Get(service_name).Result()
 	if err != nil {
 		return
 	}
@@ -87,7 +88,7 @@ func GetClientConn(service_name string) (client *grpc.ClientConn, err error) {
 	var creds credentials.TransportCredentials
 
 	if helper.GetEnv("SSL") == "true" {
-		creds, err = credentials.NewClientTLSFromFile("config/server.crt", "sude365.com")
+		creds, err = credentials.NewClientTLSFromFile("config/server.crt", "192.168.0.193")
 		if err != nil {
 			return
 		}

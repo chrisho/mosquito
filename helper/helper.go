@@ -79,7 +79,9 @@ func GetServerAddress() (ipAddress string, inetIP string) {
 		ipAddress = serverAddress + ":" + DEFAULTPORT
 	} else {
 		ipAddress = serverAddress + ":" + serverPort
-		inetIP = inetIP + ":" + serverPort
+		if inetIP != ipAddress {
+			inetIP = ":" + serverPort
+		}
 	}
 
 	return
