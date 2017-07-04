@@ -151,6 +151,8 @@ func checkServerAddress() (exist bool, index, address string) {
 	address = helper.GetEnv("ServerRegisterIP")
 	if address == "" {
 		address = helper.GetServerAddress()
+	} else {
+		address += ":" + helper.GetEnv("ServerPort")
 	}
 
 	// micro server path is set ?
