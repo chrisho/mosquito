@@ -4,19 +4,26 @@ package paginate;
 
 //option go_package = "github.com/chrisho/proto/paginate;paginate";
 
-// PaginateMode : MaxId or PageNumber, default MaxId
+// PaginateMode : MaxId or PageNumber, default PageNumber
 // PaginateMode ： 0 == PageNumber , 1 == MaxId
 // ------------------------------------------------------------
 // Action : 1 == NextPage , 0 == PreviousPage
 // default Action  NextPage
 // default MaxId 0
 // default first page : select * from table order by id desc limit 0,PageSize
+// ------------------------------------------------------------
+// OrderBy default id desc
+// 自定义 OrderBy : usernaem desc,age desc,id asc
+// 数组使用 strings.Join([]string, ",")
+// 映射使用 helper.ImplodeMapInt32String(map[int32]string, ",")
+// 映射使用 helper.ImplodeMapIntString(map[int]string, ",")
 message PageOptions {
     int32 PaginateMode = 1;
-    int32 PageSize = 2;
+    int32 PageSize = 2; // 一页显示 PageSize 条
     int32 MaxId = 3;
     int32 Action = 4;
     int32 PageNumber = 5;
+    string OrderBy = 6;
 }
 
 // total TotalRecords entries , total TotalPages pages

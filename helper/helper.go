@@ -84,6 +84,8 @@ func GetServerAddress() (ipAddress string) {
 
 	ipAddress = serverAddress + ":" + serverPort
 
+	//ipAddress = "192.168.0.193:19000"
+
 	return
 }
 
@@ -118,4 +120,34 @@ func String2Int32(str string) int32 {
 	int64Str, _ := strconv.Atoi(str)
 
 	return int32(int64Str)
+}
+
+// map map[int32]string
+// map 的 key 必须从 0 开始，顺序排列
+// sep is placed between elements in the resulting string.
+func ImplodeMapInt32String(maps map[int32]string, sep string) (str string) {
+	mapLen := int32(len(maps))
+
+	for i := int32(0); i < mapLen; i++ {
+		str += maps[i] + sep
+	}
+
+	str = strings.TrimRight(str, sep)
+
+	return
+}
+
+// map map[int]string
+// map 的 key 必须从 0 开始，顺序排列
+// sep is placed between elements in the resulting string.
+func ImplodeMapIntString(maps map[int]string, sep string) (str string) {
+	mapLen := len(maps)
+
+	for i := 0; i < mapLen; i++ {
+		str += maps[i] + sep
+	}
+
+	str = strings.TrimRight(str, sep)
+
+	return
 }
