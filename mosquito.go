@@ -11,6 +11,7 @@ import (
 	"net"
 	"os"
 	"strconv"
+	"time"
 )
 
 const envFile = "/config/conf.env"
@@ -93,7 +94,8 @@ func GetClientConn(service_name string) (client *grpc.ClientConn, err error) {
 	} else {
 		opts = append(opts, grpc.WithInsecure())
 	}
-
+	opts = append(opts, grpc.WithBlock())
+	opts = append(opts, grpc.WithTimeout(5 * time.Second))
 	client, err = grpc.Dial(addr, opts...)
 	return
 }
