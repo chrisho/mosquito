@@ -5,7 +5,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/asaskevich/govalidator"
 	"github.com/chrisho/mosquito/utils"
 	"google.golang.org/grpc/grpclog"
 	"reflect"
@@ -31,12 +30,9 @@ func GetEnv(key string) (value string) {
 }
 
 // get ip if it contains ipCutSet
+// 对比指向IP是否存在于真实IP中
 func ContainsIp(ipCutSet string) (r string) {
 	r = "127.0.0.1"
-
-	if ipCutSet == "" {
-		return
-	}
 
 	ips := utils.GetLocalIps()
 
@@ -65,7 +61,8 @@ func Reflect(model interface{}, dest interface{}) {
 }
 
 // get server address from config file *.env
-func GetServerAddress() (ipAddress string) {
+// 返回监听IP和网卡IP，假设监听IP不存在则网卡IP为127.0.0.1
+func GetServerAddress() (ipAddress string, inetIP string) {
 	serverAddress := GetEnv("ServerAddress")
 	serverPort := GetEnv("ServerPort")
 
@@ -74,17 +71,14 @@ func GetServerAddress() (ipAddress string) {
 		serverAddress = "127.0.0.1"
 	}
 
-	if ok := govalidator.IsIP(serverAddress); !ok {
-
-		ipCutSet := strings.TrimRight(serverAddress, ".*")
-
-		serverAddress = ContainsIp(ipCutSet)
-	}
+	ipCutSet := strings.TrimRight(serverAddress, ".*")  // IP前叙匹配方式
+	inetIP = ContainsIp(ipCutSet)
 
 	if serverPort == "" {
 		ipAddress = serverAddress
 	} else {
 		ipAddress = serverAddress + ":" + serverPort
+		inetIP = inetIP + ":" + serverPort
 	}
 
 	return
