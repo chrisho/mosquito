@@ -80,7 +80,7 @@ func GetServerAddress() (ipAddress string) {
 	}
 
 	if serverPort == "" {
-		ipAddress = serverAddress
+		grpclog.Fatal("no any server ports")
 	} else {
 		ipAddress = serverAddress + ":" + serverPort
 	}
