@@ -28,19 +28,19 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-// PaginateMode : MaxId or PageNumber, default PageNumber
+// ------------------------------------------------------------
+// PaginateMode : PageNumber or MaxId, default PageNumber
 // PaginateMode ： 0 == PageNumber , 1 == MaxId
 // ------------------------------------------------------------
-// Action : 1 == NextPage , 0 == PreviousPage
-// default Action  NextPage
-// default MaxId 0
+// PaginateMode - PageNumber 参数：
+// PaginateMode-0、PageSize-N、PageNumber-N、OrderBy-排序(default id desc)
+// OrderBy : strings.Join()、helper.ImplodeMapInt32String()、helper.ImplodeMapIntString()
+// ------------------------------------------------------------
+// PaginateMode - MaxId 参数：
+// PaginateMode-1、PageSize-N、MaxId-N、Action-0 || 1
+// Action : 1 == NextPage , 0 == PreviousPage (default Action  PreviousPage)
 // default first page : select * from table order by id desc limit 0,PageSize
 // ------------------------------------------------------------
-// OrderBy default id desc
-// 自定义 OrderBy : usernaem desc,age desc,id asc
-// 数组使用 strings.Join([]string, ",")
-// 映射使用 helper.ImplodeMapInt32String(map[int32]string, ",")
-// 映射使用 helper.ImplodeMapIntString(map[int]string, ",")
 type PageOptions struct {
 	PaginateMode int32  `protobuf:"varint,1,opt,name=PaginateMode" json:"PaginateMode,omitempty"`
 	PageSize     int32  `protobuf:"varint,2,opt,name=PageSize" json:"PageSize,omitempty"`
