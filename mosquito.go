@@ -86,7 +86,7 @@ func GetClientConn(service_name string) (client *grpc.ClientConn, err error) {
 	var creds credentials.TransportCredentials
 
 	if helper.GetEnv("SSL") == "true" {
-		creds, err = credentials.NewClientTLSFromFile("config/server.crt", "192.168.0.193")
+		creds, err = credentials.NewClientTLSFromFile("config/server.crt", service_name + ".local")
 		if err != nil {
 			return
 		}
