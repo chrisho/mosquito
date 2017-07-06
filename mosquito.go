@@ -108,7 +108,7 @@ func GetLocalClientConn() (conn *grpc.ClientConn, err error) {
 	var creds credentials.TransportCredentials
 
 	if helper.GetEnv("SSL") == "true" {
-		creds, err = credentials.NewClientTLSFromFile("config/server.crt", "sude365.com")
+		creds, err = credentials.NewClientTLSFromFile("config/server.crt", "")
 		if err != nil {
 			panic(err)
 		}
