@@ -69,13 +69,13 @@ func GetServerAddress() (ipAddress string) {
 	if serverPort == "" {
 		grpclog.Fatal("no any server ports")
 	}
-
+	/*
 	if serverAddress == "" {
 		grpclog.Info("serverAddress is empty or not exist")
 		serverAddress = "127.0.0.1"
 	}
-
-	if ok := govalidator.IsIP(serverAddress); !ok {
+	*/
+	if ok := govalidator.IsIP(serverAddress); serverAddress != "" && !ok {
 
 		ipCutSet := strings.TrimRight(serverAddress, ".*")
 
@@ -83,8 +83,6 @@ func GetServerAddress() (ipAddress string) {
 	}
 
 	ipAddress = serverAddress + ":" + serverPort
-
-	//ipAddress = "192.168.0.193:19000"
 
 	return
 }
