@@ -126,12 +126,7 @@ func createServerPath() {
 // create Ephemeral server path : address:port
 func createServerAddressPath() {
 
-	exist, index, address := checkServerAddress()
-
-	if exist {
-		log.Printf("server (%s) is exist \n", address)
-		return
-	}
+	index, address := checkServerAddress()
 
 	serverAddressPath := zkServerPath + "/" + index
 
@@ -144,9 +139,8 @@ func createServerAddressPath() {
 	}
 }
 
-func checkServerAddress() (exist bool, index, address string) {
+func checkServerAddress() (index, address string) {
 
-	exist = false
 	index = "1"
 	address = helper.GetEnv("ServerRegisterIP")
 	if address == "" {
@@ -176,25 +170,18 @@ func checkServerAddress() (exist bool, index, address string) {
 		}
 	}
 
-	exist, index = existServerAddress(children, address)
+	index = existServerAddress(children, address)
 
 	return
 }
 
-func existServerAddress(children []string, address string) (exist bool, index string) {
+func existServerAddress(children []string, address string) (index string) {
 
 	var maxIndex int = 0
 
 	for _, path := range children {
 		if path == "zookeeper" {
 			continue
-		}
-		bytes, _, _ := zkConn.Get(zkServerPath + "/" + path)
-		data := string(bytes)
-
-		if data == address {
-			exist = true
-			break
 		}
 
 		index, _ := strconv.Atoi(path)
