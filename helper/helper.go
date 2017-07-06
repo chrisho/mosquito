@@ -158,3 +158,8 @@ func ReverseSlice(s interface{}) {
 		swap(i, j)
 	}
 }
+
+// Trim string space
+func TrimStringSpace(str string) string {
+	return strings.Trim(str, " ")
+}
