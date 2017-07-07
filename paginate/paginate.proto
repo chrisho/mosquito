@@ -18,11 +18,15 @@ package paginate;
 // default first page : select * from table order by id desc limit 0,PageSize
 // ------------------------------------------------------------
 message PageOptions {
-    int32 PaginateMode = 1;
-    int32 PageSize = 2; // 一页显示 PageSize 条
+    int32 PaginateMode = 1; // PaginateMode ： 0 == PageNumber , 1 == MaxId
+    int32 PageSize = 2; // 一页显示 PageSize 条 （默认 10）
+
+    // PaginateMode - MaxId
     int32 MaxId = 3;
     int32 Action = 4;
-    int32 PageNumber = 5;
+
+    // PaginateMode - PageNumber
+    int32 PageNumber = 5; // 第几页
     string OrderBy = 6;
 }
 

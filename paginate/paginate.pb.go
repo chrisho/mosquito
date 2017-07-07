@@ -42,12 +42,14 @@ const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 // default first page : select * from table order by id desc limit 0,PageSize
 // ------------------------------------------------------------
 type PageOptions struct {
-	PaginateMode int32  `protobuf:"varint,1,opt,name=PaginateMode" json:"PaginateMode,omitempty"`
-	PageSize     int32  `protobuf:"varint,2,opt,name=PageSize" json:"PageSize,omitempty"`
-	MaxId        int32  `protobuf:"varint,3,opt,name=MaxId" json:"MaxId,omitempty"`
-	Action       int32  `protobuf:"varint,4,opt,name=Action" json:"Action,omitempty"`
-	PageNumber   int32  `protobuf:"varint,5,opt,name=PageNumber" json:"PageNumber,omitempty"`
-	OrderBy      string `protobuf:"bytes,6,opt,name=OrderBy" json:"OrderBy,omitempty"`
+	PaginateMode int32 `protobuf:"varint,1,opt,name=PaginateMode" json:"PaginateMode,omitempty"`
+	PageSize     int32 `protobuf:"varint,2,opt,name=PageSize" json:"PageSize,omitempty"`
+	// PaginateMode - MaxId
+	MaxId  int32 `protobuf:"varint,3,opt,name=MaxId" json:"MaxId,omitempty"`
+	Action int32 `protobuf:"varint,4,opt,name=Action" json:"Action,omitempty"`
+	// PaginateMode - PageNumber
+	PageNumber int32  `protobuf:"varint,5,opt,name=PageNumber" json:"PageNumber,omitempty"`
+	OrderBy    string `protobuf:"bytes,6,opt,name=OrderBy" json:"OrderBy,omitempty"`
 }
 
 func (m *PageOptions) Reset()                    { *m = PageOptions{} }
