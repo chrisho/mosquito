@@ -11,6 +11,8 @@ import (
 	"strconv"
 	"time"
 	"github.com/asaskevich/govalidator"
+	"google.golang.org/grpc/status"
+	"google.golang.org/grpc/codes"
 )
 
 const (
@@ -171,4 +173,8 @@ func ReverseSlice(s interface{}) {
 // Trim string space
 func TrimStringSpace(str string) string {
 	return strings.Trim(str, " ")
+}
+
+func GrpcError(c codes.Code, format string) error {
+	return status.Errorf(c, format)
 }
