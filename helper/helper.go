@@ -14,7 +14,6 @@ import (
 )
 
 const (
-	DEFAULTPORT    = "19000" // default port 19000
 	YYYYMMDDHHIISS = "2006-01-02 15:04:05"
 	YYYYMMDDHHII   = "2006-01-02 15:04"
 	YYYYMMDDHH     = "2006-01-02 15"
@@ -85,6 +84,16 @@ func GetServerAddress() (ipAddress string) {
 	ipAddress = serverAddress + ":" + serverPort
 
 	return
+}
+
+// get time now unixtime == php time()
+func UnixTime() int32 {
+	return int32(time.Now().Unix())
+}
+
+// get time now date format YYYY-MM-DD HH:II:SS
+func DateTime() string {
+	return time.Now().Format(YYYYMMDDHHIISS)
 }
 
 // RFC3339 time string to format Y-m-d H:i,Y-m-d H ...
@@ -162,14 +171,4 @@ func ReverseSlice(s interface{}) {
 // Trim string space
 func TrimStringSpace(str string) string {
 	return strings.Trim(str, " ")
-}
-
-// get time now unixtime == php time()
-func UnixTime() int32 {
-	return int32(time.Now().Unix())
-}
-
-// get time now date format YYYY-MM-DD HH:II:SS
-func DateTime() string {
-	return time.Now().Format(YYYYMMDDHHIISS)
 }
