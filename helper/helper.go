@@ -163,3 +163,13 @@ func ReverseSlice(s interface{}) {
 func TrimStringSpace(str string) string {
 	return strings.Trim(str, " ")
 }
+
+// get time now unixtime == php time()
+func UnixTime() int32 {
+	return int32(time.Now().Unix())
+}
+
+// get time now date format YYYY-MM-DD HH:II:SS
+func DateTime() string {
+	return time.Now().Format(YYYYMMDDHHIISS)
+}
