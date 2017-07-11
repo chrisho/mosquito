@@ -32,7 +32,8 @@ func GetEnv(key string) (value string) {
 	return
 }
 
-// two struct be similar, reflect model struct to destination struct
+// model、dest结构体的指针
+// 两个相似的结构体赋值
 func Reflect(model interface{}, dest interface{}) {
 
 	destValue := reflect.ValueOf(dest).Elem()
@@ -177,4 +178,20 @@ func TrimStringSpace(str string) string {
 
 func GrpcError(c codes.Code, format string) error {
 	return status.Errorf(c, format)
+}
+
+// table-表名，Struct-结构体的指针
+// 构建 select 字段
+func SqlSelectField(table string, Struct interface{}) string {
+	field := ""
+
+	structValue := reflect.ValueOf(Struct).Elem()
+	structType := structValue.Type()
+
+	for i := 0; i < structValue.NumField(); i++ {
+		name := structType.Field(i).Name
+		field += table + "." + utils.SnakeString(name) + ","
+	}
+
+	return strings.TrimRight(field, ",")
 }
