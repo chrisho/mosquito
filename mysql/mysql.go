@@ -7,6 +7,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"log"
 	"time"
+	"strings"
 )
 
 var db *gorm.DB
@@ -47,7 +48,10 @@ func GetConn() (*gorm.DB, error) {
 
 func setTablePrefix() {
 	gorm.DefaultTableNameHandler = func(db *gorm.DB, defaultTableName string) string {
-		return helper.GetEnv("MysqlPrefix") + defaultTableName
+		if !strings.HasPrefix(defaultTableName, helper.GetEnv("MysqlPrefix")) {
+			return helper.GetEnv("MysqlPrefix") + defaultTableName
+		}
+		return defaultTableName
 	}
 }
 
