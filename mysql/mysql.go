@@ -10,7 +10,10 @@ import (
 	"strings"
 )
 
-var db *gorm.DB
+var (
+	db          *gorm.DB
+	TablePrefix = helper.GetEnv("MysqlPrefix")
+)
 
 func init() {
 	var err error
@@ -34,6 +37,7 @@ func newConn() (*gorm.DB, error) {
 
 	db = connection
 
+	setMysqlDebug(db)
 	db.DB().SetConnMaxLifetime(30 * time.Second)
 
 	return db, err
@@ -46,10 +50,16 @@ func GetConn() (*gorm.DB, error) {
 	return db, nil
 }
 
+func setMysqlDebug(db *gorm.DB) {
+	if helper.GetEnv("MysqlDebug") == "TRUE" {
+		db.LogMode(true)
+	}
+}
+
 func setTablePrefix() {
 	gorm.DefaultTableNameHandler = func(db *gorm.DB, defaultTableName string) string {
-		if !strings.HasPrefix(defaultTableName, helper.GetEnv("MysqlPrefix")) {
-			return helper.GetEnv("MysqlPrefix") + defaultTableName
+		if !strings.HasPrefix(defaultTableName, TablePrefix) {
+			return TablePrefix + defaultTableName
 		}
 		return defaultTableName
 	}
