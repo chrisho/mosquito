@@ -1,12 +1,11 @@
 package paginate
 
 import (
-	"github.com/chrisho/mosquito/helper"
+	"strings"
 )
 
 var (
 	DefaultPageSize int32 = 10 // 默认显示条数
-	PaginateAction        = map[int32]string{0: "PreviousPage", 1: "NextPage", }
 	PaginateMode          = map[int32]string{0: "PageNumber", 1: "MaxId"}
 )
 
@@ -32,7 +31,7 @@ func GetSelectOptions(
 ) (
 	where string, params []interface{}, orderBy, offset interface{},
 ) {
-
+	SetDefaultPaginateOptions(in)
 	switch PaginateMode[in.PaginateMode] {
 	case "MaxId":
 		whereStr, whereParams, orderBy, offset = GetMaxIdSelectOptions(in, whereStr, whereParams)
@@ -55,18 +54,19 @@ func GetPageNumberSelectOptions(in *PageOptions) (orderBy, offset interface{}) {
 	return
 }
 
-// Action : 1 == NextPage , 0 == PreviousPage
-// PaginateMode ： MaxId
-// Action default NextPage
-// default sort : id desc
+// PaginateMode ： MaxId ; default orderBy : id desc
 func GetMaxIdSelectOptions(
 	in *PageOptions, whereStr string, whereParams []interface{},
 ) (
 	where string, params []interface{}, orderBy, offset interface{},
 ) {
-
-	switch PaginateAction[in.Action] {
-	case "NextPage":
+	// 排序方式
+	if IsOrderByAsc(in.OrderBy) {
+		whereStr += " and id > ? "
+		whereParams = append(whereParams, in.MaxId)
+		orderBy = "id asc"
+		offset = 0
+	} else {
 		if in.MaxId > 0 {
 			whereStr += " and id <= ? "
 			whereParams = append(whereParams, in.MaxId)
@@ -75,27 +75,23 @@ func GetMaxIdSelectOptions(
 			offset = 0
 		}
 		orderBy = "id desc"
-	case "PreviousPage":
-		whereStr += " and id > ? "
-		whereParams = append(whereParams, in.MaxId)
-		orderBy = "id asc"
-		offset = 0
-	default:
-		orderBy = "id desc"
-		offset = 0
 	}
 
 	return whereStr, whereParams, orderBy, offset
 }
 
+// 升序排序 ？
+func IsOrderByAsc(orderBy string) bool {
+	return strings.HasSuffix(strings.ToLower(orderBy), " asc")
+}
+
 // set paginate data
 // total TotalRecords entries, total TotalPages pages, MaxId , MinId and PageSize
-func SetPaginateData(in *PageOptions, records, maxId, minId int32) (paginate PageResult) {
+func SetPaginateData(in *PageOptions, records, firstId, lastId int32) (paginate PageResult) {
 
 	paginate.TotalRecords = records
 	paginate.PageSize = in.PageSize
 	paginate.PaginateMode = PaginateMode[in.PaginateMode]
-	paginate.Action = PaginateAction[in.Action]
 
 	if paginate.TotalRecords%in.PageSize == 0 {
 		paginate.TotalPages = paginate.TotalRecords / in.PageSize
@@ -107,27 +103,14 @@ func SetPaginateData(in *PageOptions, records, maxId, minId int32) (paginate Pag
 	case "PageNumber":
 		paginate.PageNumber = in.PageNumber
 	case "MaxId":
-		paginate.MaxId = maxId
-		paginate.MinId = minId
+		if IsOrderByAsc(in.OrderBy) {
+			paginate.MaxId = lastId
+			paginate.MinId = firstId
+		} else {
+			paginate.MaxId = firstId
+			paginate.MinId = lastId
+		}
 	}
 
 	return
-}
-
-// sort data : default id desc
-// in.Action : 0-PreviousPage-asc , 1-NextPage-desc
-// sort usersMap desc
-func SetReturnDataSort(in *PageOptions, slice interface{}) {
-
-	switch PaginateMode[in.PaginateMode] {
-	case "PageNumber":
-		// 不翻转
-	case "MaxId":
-		switch PaginateAction[in.Action] {
-		case "NextPage":
-			// 不翻转
-		case "PreviousPage":
-			helper.ReverseSlice(slice) // 翻转数组
-		}
-	}
 }

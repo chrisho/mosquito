@@ -2,19 +2,17 @@ syntax = "proto3";
 
 package paginate;
 
-//option go_package = "github.com/chrisho/proto/paginate;paginate";
-
 // ------------------------------------------------------------
-// PaginateMode : PageNumber or MaxId, default PageNumber
+// PaginateMode : 分页模式 PageNumber 或 MaxId, 默认 PageNumber
 // PaginateMode ： 0 == PageNumber , 1 == MaxId
 // ------------------------------------------------------------
-// PaginateMode - PageNumber 参数：
+// PaginateMode = 0 : PageNumber 参数：
 // PaginateMode-0、PageSize-N、PageNumber-N、OrderBy-排序(default id desc)
 // OrderBy : strings.Join()、helper.ImplodeMapInt32String()、helper.ImplodeMapIntString()
 // ------------------------------------------------------------
-// PaginateMode - MaxId 参数：
-// PaginateMode-1、PageSize-N、MaxId-N、Action-0 || 1
-// Action : 1 == NextPage , 0 == PreviousPage (default Action  PreviousPage)
+// PaginateMode = 1 - MaxId 参数：
+// MaxId : 最大id
+// OrderBy : id desc 或 id asc (default : id desc)
 // default first page : select * from table order by id desc limit 0,PageSize
 // ------------------------------------------------------------
 message PageOptions {
@@ -23,11 +21,12 @@ message PageOptions {
 
     // PaginateMode - MaxId
     int32 MaxId = 3;
-    int32 Action = 4;
 
     // PaginateMode - PageNumber
-    int32 PageNumber = 5; // 第几页
-    string OrderBy = 6;
+    int32 PageNumber = 4; // 第几页
+
+    // order by
+    string OrderBy = 5;
 }
 
 // total TotalRecords entries , total TotalPages pages
@@ -39,5 +38,4 @@ message PageResult {
     int32 MaxId = 5;
     int32 MinId = 6;
     int32 PageNumber = 7;
-    string Action = 8;
 }
