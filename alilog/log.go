@@ -38,6 +38,25 @@ type Log struct {
 }
 
 func init() {
+
+	if projectEndpoint == "" ||
+		projectAccessKeyID == ""  ||
+		projectAccessKeySecret == ""  ||
+		projectName == ""  ||
+		logFile == ""  ||
+		logStoreName == ""  ||
+		logTopic == "" {
+		return
+	}
+
+	// init log output
+	fileHandle, err := os.OpenFile(logFile, os.O_CREATE | os.O_WRONLY | os.O_APPEND, 0666)
+	if err != nil {
+		log.Error(err)
+	}
+	mw := io.MultiWriter(os.Stdout, fileHandle)
+	log.SetOutput(mw)
+
 	NewLog()
 }
 
@@ -69,10 +88,10 @@ func NewLog() {
 	util.Project.AccessKeySecret = projectAccessKeySecret
 	util.Project.Name = projectName
 
-	Log.Start()
+	Log.start()
 }
 
-func (Log *Log) Start() {
+func (Log *Log) start() {
 	os.Remove(Log.LOG_FILE)
 	logf, err := os.OpenFile(Log.LOG_FILE, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
@@ -82,11 +101,11 @@ func (Log *Log) Start() {
 	log.SetOutput(mw)
 	log.SetFormatter(&log.JSONFormatter{})
 
-	go Log.GetLogFile(Log.lineChan)
-	go Log.PushToAliyun(Log.lineChan)
+	go Log.getLogFile(Log.lineChan)
+	go Log.pushToAliyun(Log.lineChan)
 }
 
-func (Log *Log) GetLogFile(ch chan<- []string) {
+func (Log *Log) getLogFile(ch chan<- []string) {
 	for {
 		time.Sleep(10 * time.Second)
 
@@ -112,7 +131,7 @@ func (Log *Log) GetLogFile(ch chan<- []string) {
 	}
 }
 
-func (Log *Log) PushToAliyun(ch <-chan []string) {
+func (Log *Log) pushToAliyun(ch <-chan []string) {
 	logstore_name := Log.LOGSTORE_NAME
 
 	logstore, err := util.Project.GetLogStore(logstore_name)
