@@ -13,10 +13,12 @@ import (
 	"github.com/aliyun/aliyun-log-go-sdk/example/util"
 	"github.com/gogo/protobuf/proto"
 	log "github.com/sirupsen/logrus"
+	"fmt"
 )
 
 // init log params
 var (
+	noBoot				   = os.Getenv("AliLogNoBoot")
 	projectEndpoint        = os.Getenv("AliLogEndpoint")
 	projectAccessKeyID     = os.Getenv("AliLogAccessKeyID")
 	projectAccessKeySecret = os.Getenv("AliLogAccessKeySecret")
@@ -38,14 +40,14 @@ type Log struct {
 }
 
 func init() {
-
 	if projectEndpoint == "" ||
 		projectAccessKeyID == ""  ||
 		projectAccessKeySecret == ""  ||
 		projectName == ""  ||
 		logFile == ""  ||
 		logStoreName == ""  ||
-		logTopic == "" {
+		logTopic == "" ||
+		noBoot == "true" {
 		return
 	}
 
