@@ -13,7 +13,6 @@ import (
 	"github.com/aliyun/aliyun-log-go-sdk/example/util"
 	"github.com/gogo/protobuf/proto"
 	log "github.com/sirupsen/logrus"
-	"fmt"
 )
 
 // init log params
