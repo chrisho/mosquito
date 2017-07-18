@@ -46,10 +46,7 @@ func GetSelectOptions(
 func GetPageNumberSelectOptions(in *PageOptions) (orderBy, offset interface{}) {
 
 	offset = in.PageSize * (in.PageNumber - 1)
-
-	if in.OrderBy == "" {
-		orderBy = "id desc"
-	}
+	orderBy = in.OrderBy
 
 	return
 }
