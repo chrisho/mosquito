@@ -9,6 +9,10 @@ const (
 	YYYYMMDD       = "2006-01-02"
 )
 
+func TimeNow() time.Time {
+	return time.Now()
+}
+
 // get time now unixtime == php time()
 func UnixTime() int32 {
 	return int32(time.Now().Unix())
@@ -43,4 +47,13 @@ func Date2Timestamp(dateLayout, date string) int64 {
 // timestamp to format Y-m-d H:i:s
 func Timestamp2Date(timestamp int64, dateLayout string) string {
 	return time.Unix(timestamp, 0).Format(dateLayout)
+}
+
+// 两个时间相差毫秒数
+func TwoTimeMillisecond(t1, t2 time.Time) int64 {
+	return t2.UnixNano() / 1e6 - t1.UnixNano() / 1e6
+}
+
+func TimeSince(start time.Time) time.Duration {
+	return time.Since(start)
 }
