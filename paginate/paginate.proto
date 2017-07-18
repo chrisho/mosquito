@@ -36,6 +36,5 @@ message PageResult {
     int32 TotalPages = 3;
     int32 PageSize = 4;
     int32 MaxId = 5;
-    int32 MinId = 6;
-    int32 PageNumber = 7;
+    int32 PageNumber = 6;
 }

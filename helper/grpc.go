@@ -16,6 +16,7 @@ func GrpcError(c codes.Code, format string) error {
 	file = fmt.Sprintf("error file : %v ( line : %d )", file, line)
 
 	logrus.Error(file)
+	logrus.Error("error info :" + format)
 
 	return status.Errorf(c, format)
 }

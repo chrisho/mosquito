@@ -65,12 +65,10 @@ func GetMaxIdSelectOptions(
 		offset = 0
 	} else {
 		if in.MaxId > 0 {
-			whereStr += " and id <= ? "
+			whereStr += " and id < ? "
 			whereParams = append(whereParams, in.MaxId)
-			offset = in.PageSize
-		} else {
-			offset = 0
 		}
+		offset = 0
 		orderBy = "id desc"
 	}
 
@@ -84,7 +82,7 @@ func IsOrderByAsc(orderBy string) bool {
 
 // set paginate data
 // total TotalRecords entries, total TotalPages pages, MaxId , MinId and PageSize
-func SetPaginateData(in *PageOptions, records, firstId, lastId int32) (paginate PageResult) {
+func SetPaginateData(in *PageOptions, records, lastId int32) (paginate PageResult) {
 
 	paginate.TotalRecords = records
 	paginate.PageSize = in.PageSize
@@ -102,10 +100,8 @@ func SetPaginateData(in *PageOptions, records, firstId, lastId int32) (paginate 
 	case "MaxId":
 		if IsOrderByAsc(in.OrderBy) {
 			paginate.MaxId = lastId
-			paginate.MinId = firstId
 		} else {
-			paginate.MaxId = firstId
-			paginate.MinId = lastId
+			paginate.MaxId = lastId
 		}
 	}
 
