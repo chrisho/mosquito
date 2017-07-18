@@ -9,16 +9,15 @@ import (
 	"strings"
 	"time"
 
-	sls "github.com/aliyun/aliyun-log-go-sdk"
+	"github.com/aliyun/aliyun-log-go-sdk"
 	"github.com/aliyun/aliyun-log-go-sdk/example/util"
 	"github.com/gogo/protobuf/proto"
 	log "github.com/sirupsen/logrus"
-	"fmt"
 )
 
 // init log params
 var (
-	noBoot				   = os.Getenv("AliLogNoBoot")
+	noBoot                 = os.Getenv("AliLogNoBoot")
 	projectEndpoint        = os.Getenv("AliLogEndpoint")
 	projectAccessKeyID     = os.Getenv("AliLogAccessKeyID")
 	projectAccessKeySecret = os.Getenv("AliLogAccessKeySecret")
@@ -41,18 +40,18 @@ type Log struct {
 
 func init() {
 	if projectEndpoint == "" ||
-		projectAccessKeyID == ""  ||
-		projectAccessKeySecret == ""  ||
-		projectName == ""  ||
-		logFile == ""  ||
-		logStoreName == ""  ||
+		projectAccessKeyID == "" ||
+		projectAccessKeySecret == "" ||
+		projectName == "" ||
+		logFile == "" ||
+		logStoreName == "" ||
 		logTopic == "" ||
 		noBoot == "true" {
 		return
 	}
 
 	// init log output
-	fileHandle, err := os.OpenFile(logFile, os.O_CREATE | os.O_WRONLY | os.O_APPEND, 0666)
+	fileHandle, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
 		log.Error(err)
 	}
