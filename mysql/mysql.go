@@ -13,6 +13,7 @@ import (
 var (
 	db          *gorm.DB
 	TablePrefix = helper.GetEnv("MysqlPrefix")
+	ErrRecordNotFound = gorm.ErrRecordNotFound
 )
 
 func init() {
