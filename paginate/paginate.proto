@@ -2,39 +2,35 @@ syntax = "proto3";
 
 package paginate;
 
-// ------------------------------------------------------------
-// PaginateMode : 分页模式 PageNumber 或 MaxId, 默认 PageNumber
-// PaginateMode ： 0 == PageNumber , 1 == MaxId
-// ------------------------------------------------------------
-// PaginateMode = 0 : PageNumber 参数：
-// PaginateMode-0、PageSize-N、PageNumber-N、OrderBy-排序(default id desc)
-// OrderBy : strings.Join()、helper.ImplodeMapInt32String()、helper.ImplodeMapIntString()
-// ------------------------------------------------------------
-// PaginateMode = 1 - MaxId 参数：
-// MaxId : 最大id
-// OrderBy : id desc 或 id asc (default : id desc)
-// default first page : select * from table order by id desc limit 0,PageSize
-// ------------------------------------------------------------
+
+/**
+ * @apiDefine PageOptionsDefine
+ * @apiParam (PageOptions) {Struct} PageOptions 分页请求选项
+ * @apiParam (PageOptions) {Int32} [PageOptions.PageSize] 每页显示：默认 10 条
+ * @apiParam (PageOptions) {Int32} [PageOptions.PageNumber] 第几页；默认 1
+ * @apiParam (PageOptions) {Int32} [PageOptions.PrimaryParam] 主键分页模式参数
+ */
+// 分页选项
 message PageOptions {
-    int32 PaginateMode = 1; // PaginateMode ： 0 == PageNumber , 1 == MaxId
-    int32 PageSize = 2; // 一页显示 PageSize 条 （默认 10）
-
-    // PaginateMode - MaxId
-    int32 MaxId = 3;
-
-    // PaginateMode - PageNumber
-    int32 PageNumber = 4; // 第几页
-
-    // order by
-    string OrderBy = 5;
+    int32 PageSize = 1; // 每页显示
+    int32 PageNumber = 2; // 第几页
+    int32 PrimaryParam = 3; // 主键分页模式参数
 }
 
-// total TotalRecords entries , total TotalPages pages
+/**
+ * @apiDefine PageResultDefine
+ * @apiSuccess (PageResult) {Struct} PageResult 分页结果
+ * @apiSuccess (PageResult) {Int32} PageResult.TotalRecords 总记录
+ * @apiSuccess (PageResult) {Int32} PageResult.TotalPages 总页数
+ * @apiSuccess (PageResult) {Int32} PageResult.PageSize 每页显示
+ * @apiSuccess (PageResult) {Int32} PageResult.PageNumber 当前页码
+ * @apiSuccess (PageResult) {Int32} PageResult.PrimaryParam 主键分页模式参数
+ */
+// 分页结果
 message PageResult {
-    string PaginateMode = 1;
-    int32 TotalRecords = 2;
-    int32 TotalPages = 3;
-    int32 PageSize = 4;
-    int32 MaxId = 5;
-    int32 PageNumber = 6;
+    int32 TotalRecords = 1; // 总记录
+    int32 TotalPages = 2; // 总页数
+    int32 PageSize = 3; // 每页显示
+    int32 PageNumber = 4; // 当前页码
+    int32 PrimaryParam = 5; // 主键分页模式参数
 }
