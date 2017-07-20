@@ -57,7 +57,6 @@ func GetMaxIdSelectOptions(
 ) (
 	where string, params []interface{}, orderBy, offset interface{},
 ) {
-	// 排序方式
 	if IsOrderByAsc(in.OrderBy) {
 		whereStr += " and id > ? "
 		whereParams = append(whereParams, in.MaxId)
@@ -75,13 +74,12 @@ func GetMaxIdSelectOptions(
 	return whereStr, whereParams, orderBy, offset
 }
 
-// 升序排序 ？
+// 升序排序
 func IsOrderByAsc(orderBy string) bool {
 	return strings.HasSuffix(strings.ToLower(orderBy), " asc")
 }
 
 // set paginate data
-// total TotalRecords entries, total TotalPages pages, MaxId , MinId and PageSize
 func SetPaginateData(in *PageOptions, records, lastId int32) (paginate PageResult) {
 
 	paginate.TotalRecords = records
