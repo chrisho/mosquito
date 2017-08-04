@@ -3,6 +3,7 @@ package paginate
 import (
 	"strings"
 	"github.com/chrisho/mosquito/utils"
+	"reflect"
 )
 
 const (
@@ -57,6 +58,14 @@ func SetPagingModeByPrimarySelectFieldAndSort(SortField, SortFieldTo string) (fi
 	}
 
 	return field, sort
+}
+
+// structPointer 必须是 struct 的 指针
+func PagingOptionsFieldNameIsValid(structPointer interface{}, fieldName string) bool {
+
+	sElem := reflect.ValueOf(structPointer).Elem()
+
+	return sElem.FieldByName(utils.CamelString(fieldName)).IsValid()
 }
 
 // 页码分页模式选项
