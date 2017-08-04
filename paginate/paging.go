@@ -1,5 +1,10 @@
 package paginate
 
+import (
+	"strings"
+	"github.com/chrisho/mosquito/utils"
+)
+
 const (
 	PagingSize      = 10
 	PagingByPrimary = iota
@@ -34,8 +39,24 @@ func SetPagingDefaultOptions(in *PageOptions) *PageOptions {
 	if in.PageNumber < 1 {
 		in.PageNumber = 1
 	}
+	// 设置默认查询字段、排序
+	in.SortField, in.SortFieldTo = SetPagingModeByPrimarySelectFieldAndSort(in.SortField, in.SortFieldTo)
 
 	return in
+}
+
+// 默认排序
+func SetPagingModeByPrimarySelectFieldAndSort(SortField, SortFieldTo string) (field string, sort string) {
+	sort = "desc"
+	field = utils.SnakeString(strings.Trim(SortField, " "))
+
+	SortFieldTo = strings.ToLower(strings.Trim(SortFieldTo, " "))
+
+	if SortFieldTo == "asc" {
+		sort = SortFieldTo
+	}
+
+	return field, sort
 }
 
 // 页码分页模式选项
@@ -50,18 +71,19 @@ func GetPagingModeByNumberOptions(in *PageOptions) (offset, limit int32) {
 /*
  * select * from users where id > ? order by id asc limit 0,PageSize;
  * select * from users where id < ? order by id desc limit 0,PageSize;
- * if _, ok := requestParams["PagingByPrimary"]; ok {
- *	switch requestParams["SortById"].(int32) {
- *	case 1:
- *		sql = sql.Where(Table + ".id > ?", requestParams["PrimaryParam"])
- *		orderBy = SellPointLimitTable + ".id asc"
- *	default:
- *		if requestParams["PrimaryParam"].(int32) > 0 {
- *			sql = sql.Where(Table + ".id < ?", requestParams["PrimaryParam"])
+ * if _, ok := requestParams["SortValue"]; ok {
+ *		sortField := SellPointLimitTable + "." + requestParams["SortField"].(string)
+ *		sortFieldTo := requestParams["SortFieldTo"].(string)
+ *		orderBy = sortField + " " + sortFieldTo
+ *		switch sortFieldTo {
+ *		case "asc":
+ *			sql = sql.Where(sortField + " > ?", requestParams["SortValue"])
+ *		default:
+ *			if requestParams["SortValue"].(int64) > 0 {
+ *				sql = sql.Where(sortField + " < ?", requestParams["SortValue"])
+ *			}
  *		}
- *		orderBy = SellPointLimitTable + ".id desc"
  *	}
- * }
  */
 // 主键分页模式选项
 func GetPagingModeByPrimaryOptions(in *PageOptions) (offset, limit int32) {

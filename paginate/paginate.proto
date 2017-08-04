@@ -6,10 +6,10 @@ package paginate;
  * @apiDefine PageOptionsDefine
  * @apiParam (PageOptions) {Struct} PageOptions 分页请求选项
  * @apiParam (PageOptions) {Int32} [PageOptions.PageSize] 每页显示：默认 10 条
- * @apiParam (PageOptions) {Int32} [PageOptions.PageNumber] 第几页；默认 1
- * @apiParam (PageOptions) {Int64} [PageOptions.SortValue] 最大值 或 最小值
- * @apiParam (PageOptions) {String} [PageOptions.SortValueTo] 排序： desc 或 asc ， 不是这两个值，默认 desc
- * @apiParam (PageOptions) {String} [PageOptions.SortField] 排序字段
+ * @apiParam (PageOptions) {Int32} [PageOptions.PageNumber] 第几页；默认 1 (页码分页)
+ * @apiParam (PageOptions) {Int64} [PageOptions.SortValue] 最大值 或 最小值 (主键分页)
+ * @apiParam (PageOptions) {String} [PageOptions.SortField] 排序字段 (主键分页)
+ * @apiParam (PageOptions) {String} [PageOptions.SortFieldTo] 排序： desc 或 asc ， 不是这两个值，默认 desc (主键分页)
  */
 // 分页选项
 message PageOptions {
@@ -18,8 +18,8 @@ message PageOptions {
 
     // 主键分页模式参数
     int64 SortValue = 3; // 最大值 或 最小值
-    string SortValueTo = 4; // 排序： desc 或 asc ， 不是这两个值，默认 desc
-    string SortField = 5; // 排序字段
+    string SortField = 4; // 排序字段
+    string SortFieldTo = 5; // 排序： desc 或 asc ， 不是这两个值，默认 desc
 }
 
 /**
