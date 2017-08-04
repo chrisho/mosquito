@@ -2,19 +2,24 @@ syntax = "proto3";
 
 package paginate;
 
-
 /**
  * @apiDefine PageOptionsDefine
  * @apiParam (PageOptions) {Struct} PageOptions 分页请求选项
  * @apiParam (PageOptions) {Int32} [PageOptions.PageSize] 每页显示：默认 10 条
  * @apiParam (PageOptions) {Int32} [PageOptions.PageNumber] 第几页；默认 1
- * @apiParam (PageOptions) {Int32} [PageOptions.PrimaryParam] 主键分页模式参数
+ * @apiParam (PageOptions) {Int64} [PageOptions.SortValue] 最大值 或 最小值
+ * @apiParam (PageOptions) {String} [PageOptions.SortValueTo] 排序： desc 或 asc ， 不是这两个值，默认 desc
+ * @apiParam (PageOptions) {String} [PageOptions.SortField] 排序字段
  */
 // 分页选项
 message PageOptions {
     int32 PageSize = 1; // 每页显示
     int32 PageNumber = 2; // 第几页
-    int32 PrimaryParam = 3; // 主键分页模式参数
+
+    // 主键分页模式参数
+    int64 SortValue = 3; // 最大值 或 最小值
+    string SortValueTo = 4; // 排序： desc 或 asc ， 不是这两个值，默认 desc
+    string SortField = 5; // 排序字段
 }
 
 /**
@@ -24,7 +29,7 @@ message PageOptions {
  * @apiSuccess (PageResult) {Int32} PageResult.TotalPages 总页数
  * @apiSuccess (PageResult) {Int32} PageResult.PageSize 每页显示
  * @apiSuccess (PageResult) {Int32} PageResult.PageNumber 当前页码
- * @apiSuccess (PageResult) {Int32} PageResult.PrimaryParam 主键分页模式参数
+ * @apiSuccess (PageResult) {Int32} PageResult.SortValue 主键分页模式参数:最大值 或 最小值
  */
 // 分页结果
 message PageResult {
@@ -32,5 +37,5 @@ message PageResult {
     int32 TotalPages = 2; // 总页数
     int32 PageSize = 3; // 每页显示
     int32 PageNumber = 4; // 当前页码
-    int32 PrimaryParam = 5; // 主键分页模式参数
+    int64 SortValue = 5; // 主键分页模式参数
 }

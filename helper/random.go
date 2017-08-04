@@ -22,7 +22,6 @@ func RandomString(length int) string {
 		}
 	}
 	return strings.Join(rs, "")
-
 }
 
 func RandomInt(n int) int {
@@ -35,4 +34,24 @@ func RandomIntString(n int) string {
 	random := rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	return strconv.Itoa(random.Intn(n))
+}
+
+// 长度为 length 的整形字符串(允许 0 开始)
+func RandomIntStringLength(length int) string {
+	result := ""
+	random := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	for i := 0; i < length; i++ {
+		result += strconv.Itoa(random.Intn(10))
+	}
+
+	return result
+}
+
+func RandomBetweenInt(min, max int) int {
+	if min >= max {
+		return min
+	}
+
+	return RandomInt(max - min + 1) + min
 }

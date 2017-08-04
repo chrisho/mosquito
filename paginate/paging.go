@@ -50,6 +50,18 @@ func GetPagingModeByNumberOptions(in *PageOptions) (offset, limit int32) {
 /*
  * select * from users where id > ? order by id asc limit 0,PageSize;
  * select * from users where id < ? order by id desc limit 0,PageSize;
+ * if _, ok := requestParams["PagingByPrimary"]; ok {
+ *	switch requestParams["SortById"].(int32) {
+ *	case 1:
+ *		sql = sql.Where(Table + ".id > ?", requestParams["PrimaryParam"])
+ *		orderBy = SellPointLimitTable + ".id asc"
+ *	default:
+ *		if requestParams["PrimaryParam"].(int32) > 0 {
+ *			sql = sql.Where(Table + ".id < ?", requestParams["PrimaryParam"])
+ *		}
+ *		orderBy = SellPointLimitTable + ".id desc"
+ *	}
+ * }
  */
 // 主键分页模式选项
 func GetPagingModeByPrimaryOptions(in *PageOptions) (offset, limit int32) {
@@ -61,7 +73,7 @@ func GetPagingModeByPrimaryOptions(in *PageOptions) (offset, limit int32) {
 }
 
 // Set Paging Result
-func SetPagingResult(in *PageOptions, TotalRecords, PrimaryParam int32) (paginate PageResult) {
+func SetPagingResult(in *PageOptions, TotalRecords int32, SortValue int64) (paginate PageResult) {
 
 	paginate.TotalRecords = TotalRecords
 
@@ -73,8 +85,7 @@ func SetPagingResult(in *PageOptions, TotalRecords, PrimaryParam int32) (paginat
 
 	paginate.PageSize = in.PageSize
 	paginate.PageNumber = in.PageNumber
-	paginate.PrimaryParam = PrimaryParam
-	//paginate.PrimaryParam = Result[length-1].Id
+	paginate.SortValue = SortValue
 
 	return
 }
