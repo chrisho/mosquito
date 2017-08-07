@@ -49,7 +49,12 @@ func SetPagingDefaultOptions(in *PageOptions) *PageOptions {
 // 默认排序
 func SetPagingModeByPrimarySelectFieldAndSort(SortField, SortFieldTo string) (field string, sort string) {
 	sort = "desc"
-	field = utils.SnakeString(strings.Trim(SortField, " "))
+
+	if field = strings.Trim(SortField, " "); field == "" {
+		field = "id"
+	}
+
+	field = utils.SnakeString(field)
 
 	SortFieldTo = strings.ToLower(strings.Trim(SortFieldTo, " "))
 
