@@ -1,6 +1,8 @@
 package helper
 
-import "time"
+import (
+	"time"
+)
 
 const (
 	YYYYMMDDHHIISS = "2006-01-02 15:04:05"
@@ -51,9 +53,35 @@ func Timestamp2Date(timestamp int64, dateLayout string) string {
 
 // 两个时间相差毫秒数
 func TwoTimeMillisecond(t1, t2 time.Time) int64 {
-	return t2.UnixNano() / 1e6 - t1.UnixNano() / 1e6
+	return t2.UnixNano()/1e6 - t1.UnixNano()/1e6
 }
 
 func TimeSince(start time.Time) time.Duration {
 	return time.Since(start)
+}
+
+func DateSlice() []byte {
+	var dateSlice []byte
+	dateStr := DateTime()
+	dateStrSlice := []byte(dateStr)
+
+	for _, r := range dateStrSlice {
+		if r >= '0' && r <= '9' {
+			dateSlice = append(dateSlice, r)
+		}
+	}
+
+	return dateSlice
+}
+
+func DateYYYYMMDDHHIISS() string {
+	dateSlice := DateSlice()
+
+	return string(dateSlice)
+}
+
+func DateYYMMDDHHIISS() string {
+	dateSlice := DateSlice()
+
+	return string(dateSlice[2:len(dateSlice)-1])
 }
