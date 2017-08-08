@@ -100,7 +100,7 @@ func GetClientConn(service_name string) (client *grpc.ClientConn, err error) {
 	return
 }
 
-func GetLocalClientConn() (conn *grpc.ClientConn, err error) {
+func GetLocalClientConn(service_name string) (conn *grpc.ClientConn, err error) {
 
 	address := helper.GetServerAddress()
 
@@ -108,7 +108,7 @@ func GetLocalClientConn() (conn *grpc.ClientConn, err error) {
 	var creds credentials.TransportCredentials
 
 	if helper.GetEnv("SSL") == "true" {
-		creds, err = credentials.NewClientTLSFromFile("config/server.crt", "")
+		creds, err = credentials.NewClientTLSFromFile("config/server.crt", service_name + ".local")
 		if err != nil {
 			panic(err)
 		}
@@ -117,6 +117,7 @@ func GetLocalClientConn() (conn *grpc.ClientConn, err error) {
 		opts = append(opts, grpc.WithInsecure())
 	}
 
+	grpclog.Info("get client server address is ", address)
 	conn, err = grpc.Dial(address, opts...)
 	if err != nil {
 		grpclog.Error(err)
