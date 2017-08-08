@@ -2,8 +2,8 @@ package validator
 
 import (
 	"github.com/asaskevich/govalidator"
-	"log"
 	"strconv"
+	"github.com/sirupsen/logrus"
 )
 
 func init() {
@@ -21,7 +21,7 @@ func mobilePhone()  {
 		phone, err := strconv.ParseInt(phoneStr, 10, 64)
 
 		if err != nil {
-			log.Println("phone string to int64 err : ", err)
+			logrus.Error("phone string to int64 err : ", err)
 			return false
 		}
 
