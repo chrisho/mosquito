@@ -13,13 +13,12 @@ import (
 func GrpcError(c codes.Code, format string) error {
 	_, file, line, _ := runtime.Caller(1)
 
-	file = fmt.Sprintf("error file : %v ( line : %d )", file, line)
-
 	// 错误代码 200 、 422 、自定义验证错误（10000+）， 不记录日志
 	if c == 200 || c == 422 || c > 9999 {
 		return status.Errorf(c, format)
 	}
 
+	file = fmt.Sprintf("error file : %v ( code : %d) ( line : %d )", file, int(c), line)
 	logrus.Error(file)
 	logrus.Error("error info :" + format)
 
