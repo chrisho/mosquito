@@ -24,3 +24,12 @@ func GrpcError(c codes.Code, format string) error {
 
 	return status.Errorf(c, format)
 }
+
+func GrpcErrorCode(err error) codes.Code {
+	s, ok := status.FromError(err)
+
+	if ok {
+		return s.Code()
+	}
+	return codes.Code(0)
+}
