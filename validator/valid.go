@@ -4,6 +4,7 @@ import (
 	"github.com/asaskevich/govalidator"
 	"strconv"
 	"github.com/sirupsen/logrus"
+	"regexp"
 )
 
 func init() {
@@ -91,3 +92,9 @@ Validators with parameters
 "matches(pattern)": StringMatches,
 "in(string1|string2|...|stringN)": IsIn,
 */
+
+func PhoneNumber(value string) bool {
+	reg := `^1([3-9][0-9]|14[57]|5[^4])\d{8}$`
+	rgx := regexp.MustCompile(reg)
+	return rgx.MatchString(value)
+}
