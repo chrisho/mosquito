@@ -93,8 +93,27 @@ Validators with parameters
 "in(string1|string2|...|stringN)": IsIn,
 */
 
-func PhoneNumber(value string) bool {
+func IsPhoneNumber(value string) bool {
 	reg := `^1([3-9][0-9]|14[57]|5[^4])\d{8}$`
-	rgx := regexp.MustCompile(reg)
-	return rgx.MatchString(value)
+
+	return regexp.MustCompile(reg).MatchString(value)
+}
+
+// bank account
+func IsBankAccount(value string) bool {
+	reg := `^([1-9]{1})(\d{14}|\d{18})$`
+
+	return regexp.MustCompile(reg).MatchString(value)
+}
+
+// idcard
+func IsIdcard(value string) bool {
+	if len(value) == 15 {
+		reg := `^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$`
+		return regexp.MustCompile(reg).MatchString(value)
+	} else {
+		reg := `^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$`
+		return regexp.MustCompile(reg).MatchString(value)
+	}
+	return false
 }
