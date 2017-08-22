@@ -12,6 +12,8 @@ const (
 	PagingByNumber
 )
 
+var SortFieldSuffix = "_sort"
+
 // 获取分页选项
 func GetPagingOptions(in *PageOptions, PagingMode int) (offset, limit int32) {
 
@@ -49,15 +51,19 @@ func SetPagingDefaultOptions(in *PageOptions) *PageOptions {
 // 默认排序
 func SetPagingModeByPrimarySelectFieldAndSort(SortField, SortFieldTo string) (field string, sort string) {
 	sort = "desc"
-
-	if field = strings.Trim(SortField, " "); field == "" {
+	// 排序字段
+	field = strings.Trim(SortField, " ")
+	if field == "" {
 		field = "id"
 	}
-
+	// snake string
 	field = utils.SnakeString(field)
-
+	// 是否有排序后缀 _sort
+	if ! strings.HasSuffix(field, SortFieldSuffix) {
+		field = field + SortFieldSuffix
+	}
+	// 排序方式
 	SortFieldTo = strings.ToLower(strings.Trim(SortFieldTo, " "))
-
 	if SortFieldTo == "asc" {
 		sort = SortFieldTo
 	}
