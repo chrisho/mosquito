@@ -39,6 +39,18 @@ func Date2Date(inputDateLayout, inputDate, resultDateLayout string) string {
 	return timestamp.Format(resultDateLayout)
 }
 
+// date to time.Time
+func Date2Time(date, dateFormat string) time.Time {
+	timeTime, _ := time.ParseInLocation(dateFormat, date, time.Local)
+
+	return timeTime
+}
+
+// Timestamp to time.Time
+func Timestamp2Time(timestamp int64) time.Time {
+	return time.Unix(timestamp, 0)
+}
+
 //  date to timestamp
 func Date2Timestamp(dateLayout, date string) int64 {
 	localTime, _ := time.ParseInLocation(dateLayout, date, time.Local)
