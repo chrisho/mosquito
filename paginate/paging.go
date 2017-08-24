@@ -55,11 +55,12 @@ func SetPagingModeByPrimarySelectFieldAndSort(SortField, SortFieldTo string) (fi
 	field = strings.Trim(SortField, " ")
 	if field == "" {
 		field = "id"
-	} else {
+	}
+	if field != "id" {
 		// snake string
 		field = utils.SnakeString(field)
 		// 是否有排序后缀 _sort
-		if ! strings.HasSuffix(field, SortFieldSuffix) {
+		if field != "id" && ! strings.HasSuffix(field, SortFieldSuffix) {
 			field = field + SortFieldSuffix
 		}
 	}
