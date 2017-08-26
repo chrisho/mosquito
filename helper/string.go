@@ -10,6 +10,12 @@ func TrimStringSpace(str string) string {
 	return strings.Trim(str, " ")
 }
 
+
+// Trim string cutset
+func TrimStringCutset(str, cutset string) string {
+	return strings.Trim(str, cutset)
+}
+
 // string to int64
 func String2Int64(str string) (int64, error) {
 	return strconv.ParseInt(str, 10, 64)

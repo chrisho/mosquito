@@ -93,13 +93,16 @@ Validators with parameters
 "in(string1|string2|...|stringN)": IsIn,
 */
 
+// IsPhoneNumber
 func IsPhoneNumber(value string) bool {
 	reg := `^1([3-9][0-9]|14[57]|5[^4])\d{8}$`
 
 	return regexp.MustCompile(reg).MatchString(value)
 }
+
+// IsFixedPhone
 func IsFixedPhone(value string) bool {
-	reg := `^(0[0-9]{2,3}/-)?([2-9][0-9]{6,7})+(/-[0-9]{1,4})?$`
+	reg := `^(0[0-9]{2,3}-)?([2-9][0-9]{6,7})+(-[0-9]{1,4})?$`
 
 	return regexp.MustCompile(reg).MatchString(value)
 }
@@ -131,6 +134,40 @@ func IsUrl(value string) bool {
 // chinese
 func IsChinese(value string) bool {
 	reg := `^[\p{Han}]+$`
+
+	return regexp.MustCompile(reg).MatchString(value)
+}
+
+// chinese and letter and number
+func IsChineseAndLetterAndNumber(value string) bool {
+	reg := `^[a-zA-Z0-9\p{Han}]+$`
+
+	return regexp.MustCompile(reg).MatchString(value)
+}
+
+// postcode
+func IsPostcode(value string) bool {
+	reg := `^[1-9][0-9]{5}$`
+
+	return regexp.MustCompile(reg).MatchString(value)
+}
+
+// IsNumeric
+func IsNumeric(value string) bool {
+	if value == "" {
+		return false
+	}
+	return govalidator.IsNumeric(value)
+}
+
+// IsEmail
+func IsEmail(value string) bool {
+	return govalidator.IsEmail(value)
+}
+
+// IsImei
+func IsImei(value string) bool {
+	reg := `^[0-9A-Za-z]+$`
 
 	return regexp.MustCompile(reg).MatchString(value)
 }
