@@ -1,23 +1,21 @@
 package helper
 
-import "time"
+import (
+	"time"
+	"github.com/chrisho/mosquito/validator"
+	"strconv"
+	"math"
+)
 
 func CalcIdcardAge(idcard string) int {
-	dateByte := []byte(TrimStringSpace(idcard))[6:14]
-
-	dateStr := string(dateByte[0:4]) + "-" + string(dateByte[4:6]) + "-" + string(dateByte[6:8])
-
-	timeTime := Date2Time(dateStr, YYYYMMDD)
-	timeNow := time.Now()
-
-	age := timeNow.Year() - timeTime.Year()
-
-	if timeNow.Month() - timeTime.Month() < 0 {
-		age -= 1
+	if ! validator.IsIdcard(idcard) {
+		return 0
 	}
 
-	if timeNow.Month() - timeTime.Month() == 0 && timeNow.Day() - timeTime.Day() < 0 {
-		age -= 1
-	}
-	return age
+	idcardDateStr := string([]byte(idcard)[6:14])
+	nowTimeDateStr := time.Now().Format("20060102")
+	idcardDateInt, _ := strconv.Atoi(idcardDateStr)
+	nowTimeDateInt, _ := strconv.Atoi(nowTimeDateStr)
+
+	return int(math.Floor(float64(nowTimeDateInt-idcardDateInt)) / 10000)
 }

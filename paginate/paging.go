@@ -116,6 +116,30 @@ func GetPagingModeByPrimaryOptions(in *PageOptions) (offset, limit int32) {
 	return
 }
 
+//panic if s is not a struct pointer
+func GetSortValue(s interface{}, sortField string) int64 {
+	sortField = utils.CamelString(sortField)
+	sElem := reflect.ValueOf(s).Elem()
+	// 是否存在改字段
+	if ! sElem.FieldByName(sortField).IsValid() {
+		return 0
+	}
+	// 字段值
+	value := sElem.FieldByName(sortField).Interface()
+	// 判断字段值
+	switch value.(type) {
+	case int64:
+		return value.(int64)
+	case int32:
+		return int64(value.(int32))
+	case int:
+		return int64(value.(int))
+	default:
+		return 0
+	}
+	return 0
+}
+
 // Set Paging Result
 func SetPagingResult(in *PageOptions, TotalRecords int32, SortValue int64) (paginate PageResult) {
 
