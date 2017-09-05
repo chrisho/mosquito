@@ -120,7 +120,7 @@ func GetPagingModeByPrimaryOptions(in *PageOptions) (offset, limit int32) {
 func GetSortValue(s interface{}, sortField string) int64 {
 	sortField = utils.CamelString(sortField)
 	sElem := reflect.ValueOf(s).Elem()
-	// 是否存在改字段
+	// 是否存在字段
 	if ! sElem.FieldByName(sortField).IsValid() {
 		return 0
 	}
