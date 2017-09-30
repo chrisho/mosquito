@@ -15,6 +15,16 @@ func TimeNow() time.Time {
 	return time.Now()
 }
 
+func TodayDate() string {
+	return time.Now().Format(YYYYMMDD)
+}
+
+func TodayUnix() int64 {
+	dateTime, _ := time.ParseInLocation(YYYYMMDD, TodayDate(), time.Local)
+
+	return dateTime.Unix()
+}
+
 // get time now unixtime == php time()
 func UnixTime() int32 {
 	return int32(time.Now().Unix())
@@ -27,16 +37,16 @@ func DateTime() string {
 
 // RFC3339 time string to format Y-m-d H:i,Y-m-d H ...
 func RFC3339Time2Date(timeStr, dateLayout string) string {
-	timestamp, _ := time.ParseInLocation(time.RFC3339, timeStr, time.Local)
+	dateTime, _ := time.ParseInLocation(time.RFC3339, timeStr, time.Local)
 
-	return timestamp.Format(dateLayout)
+	return dateTime.Format(dateLayout)
 }
 
 // change date to format Y-m-d H:i,Y-m-d H ...
 func Date2Date(inputDateLayout, inputDate, resultDateLayout string) string {
-	timestamp, _ := time.ParseInLocation(inputDateLayout, inputDate, time.Local)
+	dateTime, _ := time.ParseInLocation(inputDateLayout, inputDate, time.Local)
 
-	return timestamp.Format(resultDateLayout)
+	return dateTime.Format(resultDateLayout)
 }
 
 // date to time.Time
