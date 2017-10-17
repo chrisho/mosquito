@@ -6,18 +6,37 @@ import (
 	"github.com/chrisho/mosquito/utils"
 )
 
-// table-表名，Struct-结构体的指针
 // 构建 select 字段
-func SqlSelectField(table string, Struct interface{}) string {
+func SqlSelectField(tableName string, structPointer interface{}) string {
 	field := ""
 
-	structValue := reflect.ValueOf(Struct).Elem()
+	structValue := reflect.ValueOf(structPointer).Elem()
 	structType := structValue.Type()
 
 	for i := 0; i < structValue.NumField(); i++ {
 		name := structType.Field(i).Name
-		field += table + "." + utils.SnakeString(name) + ","
+		field += tableName + "." + utils.SnakeString(name) + ","
 	}
 
 	return strings.TrimRight(field, ",")
+}
+
+// 构建 insert 字段
+func SqlInsertField(tableName string, structPointer interface{}, withoutField map[string]bool) (insertField, prepareField string) {
+	structValue := reflect.ValueOf(structPointer).Elem()
+	structType := structValue.Type()
+
+	for i := 0; i < structValue.NumField(); i++ {
+		// 无需的字段
+		if withoutField[structType.Field(i).Name] {
+			continue
+		}
+		name := structType.Field(i).Name
+		insertField += tableName + "." + utils.SnakeString(name) + ","
+		prepareField += "?,"
+	}
+	insertField = strings.TrimRight(insertField, ",")
+	prepareField = strings.TrimRight(prepareField, ",")
+
+	return
 }
