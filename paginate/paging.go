@@ -12,7 +12,7 @@ const (
 	PagingByNumber
 )
 
-var SortFieldSuffix = "_sort"
+const SortFieldSuffix = "_sort"
 
 // 获取分页选项
 func GetPagingOptions(in *PageOptions, PagingMode int) (offset, limit int32) {
