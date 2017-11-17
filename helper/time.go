@@ -9,6 +9,7 @@ const (
 	YYYYMMDDHHII   = "2006-01-02 15:04"
 	YYYYMMDDHH     = "2006-01-02 15"
 	YYYYMMDD       = "2006-01-02"
+	RFC3339        = time.RFC3339
 )
 
 func TimeNow() time.Time {
