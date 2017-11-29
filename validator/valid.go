@@ -95,7 +95,8 @@ Validators with parameters
 
 // IsPhoneNumber
 func IsPhoneNumber(value string) bool {
-	reg := `^1([3-9][0-9]|14[57]|5[^4])\d{8}$`
+	//reg := `^1([3-9][0-9]|14[57]|5[^4])\d{8}$`
+	reg := `^[12]\d{10}$`
 
 	return regexp.MustCompile(reg).MatchString(value)
 }
