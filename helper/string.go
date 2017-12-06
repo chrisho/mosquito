@@ -10,7 +10,6 @@ func TrimStringSpace(str string) string {
 	return strings.Trim(str, " ")
 }
 
-
 // Trim string cutset
 func TrimStringCutset(str, cutset string) string {
 	return strings.Trim(str, cutset)
@@ -26,6 +25,10 @@ func String2Int32(str string) int32 {
 	int64Str, _ := strconv.Atoi(str)
 
 	return int32(int64Str)
+}
+
+func Float2String(number float64, bitSize int) string {
+	return strconv.FormatFloat(number, 'f', -1, bitSize)
 }
 
 // map map[int]string

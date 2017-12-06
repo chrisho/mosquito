@@ -36,6 +36,13 @@ func DateTime() string {
 	return time.Now().Format(YYYYMMDDHHIISS)
 }
 
+func NextMonthTime() time.Time {
+	timeNow := time.Now()
+
+	return time.Date(timeNow.Year(), timeNow.Month(), 1, 0, 0, 0, 0, time.Local).
+		AddDate(0, 1, 0)
+}
+
 // RFC3339 time string to format Y-m-d H:i,Y-m-d H ...
 func RFC3339Time2Date(timeStr, dateLayout string) string {
 	dateTime, _ := time.ParseInLocation(time.RFC3339, timeStr, time.Local)
