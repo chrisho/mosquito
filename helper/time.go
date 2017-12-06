@@ -36,10 +36,8 @@ func DateTime() string {
 	return time.Now().Format(YYYYMMDDHHIISS)
 }
 
-func NextMonthTime() time.Time {
-	timeNow := time.Now()
-
-	return time.Date(timeNow.Year(), timeNow.Month(), 1, 0, 0, 0, 0, time.Local).
+func NextMonth01Time(timeTime time.Time) time.Time {
+	return time.Date(timeTime.Year(), timeTime.Month(), 1, 0, 0, 0, 0, time.Local).
 		AddDate(0, 1, 0)
 }
 
