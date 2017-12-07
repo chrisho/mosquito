@@ -36,6 +36,15 @@ func DateTime() string {
 	return time.Now().Format(YYYYMMDDHHIISS)
 }
 
+// 这月的某天
+func ThisMonthDayTime(timeTime time.Time, whichDay int) time.Time {
+	if whichDay <= 0 {
+		whichDay = 1
+	}
+	return time.Date(timeTime.Year(), timeTime.Month(), whichDay, 0, 0, 0, 0, time.Local)
+}
+
+// 下月1号时间
 func NextMonth01Time(timeTime time.Time) time.Time {
 	return time.Date(timeTime.Year(), timeTime.Month(), 1, 0, 0, 0, 0, time.Local).
 		AddDate(0, 1, 0)
