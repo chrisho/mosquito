@@ -13,7 +13,7 @@ func init() {
 	mobilePhone()
 }
 
-func mobilePhone()  {
+func mobilePhone() {
 	govalidator.CustomTypeTagMap.Set("mobilePhone", govalidator.CustomTypeValidator(func(i interface{}, o interface{}) bool {
 
 		phoneStr := i.(string)
@@ -137,6 +137,13 @@ func IsChinese(value string) bool {
 	reg := `^[\p{Han}]+$`
 
 	return regexp.MustCompile(reg).MatchString(value)
+}
+
+// has chinese
+func HasChinese(value string) bool {
+	reg, _ := regexp.Compile(`[\p{Han}]`)
+
+	return reg.MatchString(value)
 }
 
 // chinese and letter and number
