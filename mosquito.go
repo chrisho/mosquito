@@ -12,6 +12,7 @@ import (
 	"os"
 	"strconv"
 	"time"
+	"log"
 )
 
 const envFile = "/config/conf.env"
@@ -52,7 +53,7 @@ func RunServer() {
 
 	listen_addr := helper.GetServerAddress()
 
-	grpclog.Info("server address is ", listen_addr)
+	log.Print("server address is ", listen_addr)
 
 	listen, err := net.Listen("tcp", listen_addr)
 	if err != nil {
