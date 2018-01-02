@@ -55,7 +55,7 @@ func RunServer() {
 
 	log.Print("server address is ", listen_addr)
 
-	listen, err := net.Listen("tcp", listen_addr)
+	listen, err := net.Listen("tcp", ":" + helper.GetEnv("ServerPort"))
 	if err != nil {
 		grpclog.Error(err)
 	}
