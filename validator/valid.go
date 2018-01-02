@@ -139,6 +139,13 @@ func IsChinese(value string) bool {
 	return regexp.MustCompile(reg).MatchString(value)
 }
 
+// 中文名字
+func IsChineseName(value string) bool {
+	reg := `^[\p{Han}（）()]+$`
+
+	return regexp.MustCompile(reg).MatchString(value)
+}
+
 // has chinese
 func HasChinese(value string) bool {
 	reg, _ := regexp.Compile(`[\p{Han}]`)
