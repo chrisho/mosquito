@@ -76,9 +76,9 @@ func GetClientConn(service_name string) (client *grpc.ClientConn, err error) {
 		return
 	}
 	defer redisClient.Close()
-	service_name = prefixKey + helper.GetEnv("ZkRootPath") + "/" + service_name
+	redisServiceName := prefixKey + helper.GetEnv("ZkRootPath") + "/" + service_name
 
-	addr, err := redisClient.Get(service_name).Result()
+	addr, err := redisClient.Get(redisServiceName).Result()
 	if err != nil {
 		return
 	}
