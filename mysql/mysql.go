@@ -32,10 +32,15 @@ func newConn() (*gorm.DB, error) {
 	setTablePrefix()
 	connection, err := gorm.Open("mysql", getDataSource())
 	if err != nil {
-		return nil, err
+		return nil, errors.New("connection is not exist")
 	}
 
 	db = connection
+
+	err = db.DB().Ping()
+	if err != nil {
+		return nil, err
+	}
 
 	setMysqlDebug(db)
 	db.DB().SetConnMaxLifetime(30 * time.Second)
@@ -44,8 +49,9 @@ func newConn() (*gorm.DB, error) {
 }
 
 func GetConn() (*gorm.DB, error) {
-	if db == nil {
-		return nil, errors.New("connection is not exist")
+	db, err := newConn()
+	if err != nil {
+		return nil, err
 	}
 	return db, nil
 }
