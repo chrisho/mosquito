@@ -5,6 +5,7 @@ import (
 	"github.com/samuel/go-zookeeper/zk"
 	"log"
 	"strconv"
+	"time"
 )
 
 // register server into zookeeper
@@ -16,10 +17,44 @@ func RegMicroServer() (children []string, err error) {
 
 	createRootPath()
 	createServerPath()
-	createServerAddressPath()
+	serverAddressPath := createServerAddressPath()
+	// 监听节点
+	go watchRegMicroServer(serverAddressPath)
 
 	children, _, err = zkConn.Children(zkServerPath)
 	return
+}
+
+// 监听server地址，如果掉线，每1秒尝试重连
+func watchRegMicroServer(serverAddressPath string) bool {
+	_, _, wChan, err := zkConn.GetW(serverAddressPath)
+	// zk: node does not exist
+	if err != nil {
+		RegMicroServerAgain()
+		return true
+	}
+	// 阻塞监听节点
+	select {
+	case msg, ok := <-wChan:
+		if ok {
+			// 被删除
+			if msg.Type == zk.EventNodeDeleted {
+				log.Println("Reg Micro Server Again")
+				RegMicroServerAgain()
+				return true
+			} else {
+				// 重新监听
+				watchRegMicroServer(serverAddressPath)
+			}
+		}
+	}
+	return true
+}
+
+func RegMicroServerAgain() (children []string, err error) {
+	// 3s 后再次注册节点
+	time.Sleep(3 * time.Second)
+	return RegMicroServer()
 }
 
 // exist rootPath or create rootPath
@@ -55,7 +90,7 @@ func createServerPath() {
 }
 
 // create Ephemeral server path : address:port
-func createServerAddressPath() {
+func createServerAddressPath() string {
 
 	index, address := checkServerAddress()
 
@@ -68,6 +103,7 @@ func createServerAddressPath() {
 			log.Println(err)
 		}
 	}
+	return serverAddressPath
 }
 
 func checkServerAddress() (index, address string) {
