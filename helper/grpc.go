@@ -5,7 +5,7 @@ import (
 	"google.golang.org/grpc/status"
 	"runtime"
 	"fmt"
-	_ "github.com/chrisho/mosquito/alilog"
+	//_ "github.com/chrisho/mosquito/alilog"
 	"github.com/sirupsen/logrus"
 )
 
