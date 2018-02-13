@@ -42,11 +42,11 @@ func watchRegMicroServer(serverAddressPath string) bool {
 				log.Println("Reg Micro Server Again")
 				RegMicroServerAgain()
 				return true
-			} else {
-				// 重新监听
-				watchRegMicroServer(serverAddressPath)
 			}
 		}
+		// 重新监听
+		watchRegMicroServer(serverAddressPath)
+		return true
 	}
 	return true
 }
