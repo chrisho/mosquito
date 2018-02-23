@@ -72,7 +72,7 @@ func (s *AliKafka) initConsumerConfig(cfg *KafkaConfig) (clusterCfg *cluster.Con
 }
 
 // configs : 可选
-func (s *AliKafka) ProcessMessage(msgFunc []func(msgKey, msgValue []byte), configs ...*KafkaConfig) (err error) {
+func (s *AliKafka) ProcessMessage(msgFunc []func(msg *sarama.ConsumerMessage), configs ...*KafkaConfig) (err error) {
 	if s.Consumer == nil {
 		return errors.New("consumer is nil pointer, please run NewConsumer")
 	}
@@ -86,9 +86,9 @@ func (s *AliKafka) ProcessMessage(msgFunc []func(msgKey, msgValue []byte), confi
 		case msg, ok := <-s.Consumer.Messages():
 			if ok {
 				for _, f := range msgFunc {
-					f(msg.Key, msg.Value)
+					f(msg)
 				}
-				s.Consumer.MarkOffset(msg, "") // mark message as processed
+				//s.Consumer.MarkOffset(msg, "") // mark message as processed
 			}
 		case err, ok := <-s.Consumer.Errors():
 			if ok {
