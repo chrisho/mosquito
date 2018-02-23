@@ -10,19 +10,17 @@ import (
 )
 
 // grpc error
-func GrpcError(c codes.Code, format string) error {
+func GrpcError(c codes.Code, msg string) error {
 	_, file, line, _ := runtime.Caller(1)
 
 	// 错误代码 200 、 422 、自定义验证错误（10000+）， 不记录日志
-	if c == 200 || c == 422 || c > 9999 {
-		return status.Errorf(c, format)
+	if c != 200 && c != 422 && c <= 9999 {
+		errorLog := fmt.Sprintf("error file : %v ( code : %d) ( line : %d ) \n error info : %v", file, int(c), line, msg)
+		fmt.Println(errorLog)
+		logrus.Error(errorLog)
 	}
 
-	file = fmt.Sprintf("error file : %v ( code : %d) ( line : %d )", file, int(c), line)
-	logrus.Error(file)
-	logrus.Error("error info :" + format)
-
-	return status.Errorf(c, format)
+	return status.Errorf(c, msg)
 }
 
 func GrpcErrorCode(err error) codes.Code {
