@@ -9,43 +9,47 @@ import (
 
 // 配置
 type KafkaConfig struct {
-	Servers    []string `json:"servers"`    // xxx:8080
-	Topics     []string `json:"topics"`     // Topic
-	Ak         string   `json:"ak"`         // AccessKey
-	Password   string   `json:"password"`   // SecretKey的后10位
-	ConsumerId string   `json:"consumerId"` // ConsumerID
-	CertFile   string   `json:"cert_file"`  // 根证书路径
+	Servers    []string // xxx:8080
+	Topics     []string // Topic
+	Ak         string   // AccessKey
+	Password   string   // SecretKey的后10位
+	ConsumerId string   // ConsumerID
+	CertFile   string   // 根证书路径
+	ConfigPath string   // 配置文件目录
 }
 
 type AliKafka struct {
-	Topics   []string
 	Producer sarama.SyncProducer
 	Consumer *cluster.Consumer
 }
 
 var configPath = "config/"
-var kafkaConfig *KafkaConfig
 var producerConnectPanic bool
 var consumerConnectPanic bool
 
 func init() {
-	kafkaConfig = &KafkaConfig{
-		Servers:    strings.Split(helper.GetEnv("KafkaServers"), ","),
-		Topics:     strings.Split(helper.GetEnv("KafkaTopics"), ","),
-		Ak:         helper.GetEnv("KafkaAccessKey"),
-		Password:   helper.GetEnv("KafkaPassword"),
-		ConsumerId: helper.GetEnv("KafkaConsumerId"),
-		CertFile:   configPath + helper.GetEnv("KafkaCertFile"),
-	}
 	// connect with panic : default false
 	producerConnectPanic = strings.ToLower(helper.GetEnv("KafkaProducerConnectPanic")) == "true"
 	consumerConnectPanic = strings.ToLower(helper.GetEnv("KafkaConsumerConnectPanic")) == "true"
 }
 
-// 获取ali-kafka
-func GetAliKafka() *AliKafka {
-	return &AliKafka{
-		Topics: kafkaConfig.Topics,
+// NewAliKafka
+func NewAliKafka() *AliKafka {
+	return new(AliKafka)
+}
+
+// 初始化配置
+//kafkaConfig = &KafkaConfig{
+//	Servers:    strings.Split(helper.GetEnv("KafkaServers"), ","),
+//	Topics:     strings.Split(helper.GetEnv("KafkaTopics"), ","),
+//	Ak:         helper.GetEnv("KafkaAccessKey"),
+//	Password:   helper.GetEnv("KafkaPassword"),
+//	ConsumerId: helper.GetEnv("KafkaConsumerId"),
+//	CertFile:   configPath + helper.GetEnv("KafkaCertFile"),
+//}
+func NewConfig() *KafkaConfig {
+	return &KafkaConfig{
+		ConfigPath: configPath,
 	}
 }
 

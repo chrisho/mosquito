@@ -10,12 +10,7 @@ import (
 )
 
 // configs : 可选；(默认配置)
-func (s *AliKafka) NewProducer(configs ...*KafkaConfig) (err error) {
-	// 默认配置
-	cfg := kafkaConfig
-	if len(configs) > 0 {
-		cfg = configs[0]
-	}
+func (s *AliKafka) NewProducer(cfg *KafkaConfig) (err error) {
 	// 消息队列配置
 	mqConfig, err := s.initProducerConfig(cfg)
 	if err != nil {
@@ -83,18 +78,11 @@ func (s *AliKafka) GenerateMessage(topic string, key string, content string) *sa
 }
 
 // 写入消息
-func (s *AliKafka) SendMessage(msg *sarama.ProducerMessage) (partition int32, offset int64, err error) {
-	if s.Producer == nil {
-		err = errors.New("producer is nil pointer, please run NewProducer")
-		return partition, offset, err
-	}
-	return s.Producer.SendMessage(msg)
+func (s *AliKafka) SendMessage(producer sarama.SyncProducer, msg *sarama.ProducerMessage) (partition int32, offset int64, err error) {
+	return producer.SendMessage(msg)
 }
 
 // 写入消息
-func (s *AliKafka) SendMessages(msg []*sarama.ProducerMessage) error {
-	if s.Producer == nil {
-		return errors.New("producer is nil pointer, please run NewProducer")
-	}
-	return s.Producer.SendMessages(msg)
+func (s *AliKafka) SendMessages(producer sarama.SyncProducer, msg []*sarama.ProducerMessage) error {
+	return producer.SendMessages(msg)
 }

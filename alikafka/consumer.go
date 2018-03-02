@@ -8,16 +8,12 @@ import (
 	"github.com/Shopify/sarama"
 	"github.com/bsm/sarama-cluster"
 	"errors"
-	"time"
+	"github.com/chrisho/mosquito/helper"
 )
 
-// configs : 可选；(默认配置)
-func (s *AliKafka) NewConsumer(configs ...*KafkaConfig) (err error) {
-	// cluster.config
-	cfg := kafkaConfig
-	if len(configs) > 0 {
-		cfg = configs[0]
-	}
+// NewConsumer
+func (s *AliKafka) NewConsumer(cfg *KafkaConfig) (err error) {
+	// 消息队列配置
 	clusterCfg, err := s.initConsumerConfig(cfg)
 	if err != nil {
 		msg := err.Error()
@@ -72,12 +68,16 @@ func (s *AliKafka) initConsumerConfig(cfg *KafkaConfig) (clusterCfg *cluster.Con
 }
 
 // configs : 可选
-func (s *AliKafka) ProcessMessage(msgFunc []func(msg *sarama.ConsumerMessage), configs ...*KafkaConfig) (err error) {
-	if s.Consumer == nil {
-		return errors.New("consumer is nil pointer, please run NewConsumer")
-	}
+func (s *AliKafka) ProcessMessage( cfg *KafkaConfig, msgFunc []func(msg *sarama.ConsumerMessage)) (err error) {
+	// 没有监听
 	if len(msgFunc) == 0 {
 		return err
+	}
+	// 初始化 消费者
+	if s.Consumer == nil {
+		if err = s.NewConsumer(cfg); err != nil {
+			return err
+		}
 	}
 	fmt.Println("consumer is start...")
 	// 开始消费
@@ -88,14 +88,10 @@ func (s *AliKafka) ProcessMessage(msgFunc []func(msg *sarama.ConsumerMessage), c
 				for _, f := range msgFunc {
 					f(msg)
 				}
-				//s.Consumer.MarkOffset(msg, "") // mark message as processed
 			}
 		case err, ok := <-s.Consumer.Errors():
 			if ok {
-				fmt.Printf("Kafka consumer error: %v \n", err.Error())
-				time.Sleep(time.Second) // 1s 后重启
-				s.NewConsumer(configs...)
-				s.ProcessMessage(msgFunc)
+				helper.GrpcError(500, "Kafka consumer error: "+err.Error())
 			}
 		case ntf, ok := <-s.Consumer.Notifications():
 			if ok {
