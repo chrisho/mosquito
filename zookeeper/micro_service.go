@@ -54,6 +54,7 @@ func watchRegMicroServer(serverAddressPath string) bool {
 func RegMicroServerAgain() (children []string, err error) {
 	// 3s 后再次注册节点
 	time.Sleep(3 * time.Second)
+	NewConn() // 重连zk
 	return RegMicroServer()
 }
 
