@@ -9,6 +9,7 @@ import (
 	"github.com/bsm/sarama-cluster"
 	"errors"
 	"github.com/chrisho/mosquito/helper"
+	"time"
 )
 
 // NewConsumer
@@ -68,7 +69,7 @@ func (s *AliKafka) initConsumerConfig(cfg *KafkaConfig) (clusterCfg *cluster.Con
 }
 
 // configs : 可选
-func (s *AliKafka) ProcessMessage( cfg *KafkaConfig, msgFunc []func(msg *sarama.ConsumerMessage)) (err error) {
+func (s *AliKafka) ProcessMessage(cfg *KafkaConfig, msgFunc []func(msg *sarama.ConsumerMessage)) (err error) {
 	// 没有监听
 	if len(msgFunc) == 0 {
 		return err
@@ -92,6 +93,8 @@ func (s *AliKafka) ProcessMessage( cfg *KafkaConfig, msgFunc []func(msg *sarama.
 		case err, ok := <-s.Consumer.Errors():
 			if ok {
 				helper.GrpcError(500, "Kafka consumer error: "+err.Error())
+				// 错误：重连kafka队列
+				s.reconnectionConsumer(cfg)
 			}
 		case ntf, ok := <-s.Consumer.Notifications():
 			if ok {
@@ -100,4 +103,12 @@ func (s *AliKafka) ProcessMessage( cfg *KafkaConfig, msgFunc []func(msg *sarama.
 		}
 	}
 	return err
+}
+
+// 重连kafka队列
+func (s *AliKafka) reconnectionConsumer(cfg *KafkaConfig) {
+	if err := s.NewConsumer(cfg); err != nil {
+		time.Sleep(3 * time.Second)
+		s.reconnectionConsumer(cfg)
+	}
 }
