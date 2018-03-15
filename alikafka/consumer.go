@@ -94,7 +94,7 @@ func (s *AliKafka) ProcessMessage(cfg *KafkaConfig, msgFunc []func(msg *sarama.C
 			if ok {
 				helper.GrpcError(500, "Kafka consumer error: "+err.Error())
 				// 错误：重连kafka队列
-				s.reconnectionConsumer(cfg)
+				return s.reconnectionConsumer(cfg, msgFunc)
 			}
 		case ntf, ok := <-s.Consumer.Notifications():
 			if ok {
@@ -106,9 +106,10 @@ func (s *AliKafka) ProcessMessage(cfg *KafkaConfig, msgFunc []func(msg *sarama.C
 }
 
 // 重连kafka队列
-func (s *AliKafka) reconnectionConsumer(cfg *KafkaConfig) {
+func (s *AliKafka) reconnectionConsumer(cfg *KafkaConfig, msgFunc []func(msg *sarama.ConsumerMessage)) (err error) {
 	if err := s.NewConsumer(cfg); err != nil {
 		time.Sleep(3 * time.Second)
-		s.reconnectionConsumer(cfg)
+		s.reconnectionConsumer(cfg, msgFunc)
 	}
+	return s.ProcessMessage(cfg, msgFunc)
 }
