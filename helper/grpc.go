@@ -17,7 +17,7 @@ func GrpcError(c codes.Code, msg string) error {
 	fmt.Println(errorLog)
 
 	// 错误代码 200 、 422 、自定义验证错误（10000+）， 不记录日志
-	if c != 200 && c != 422 && c <= 9999 {
+	if c != 200 && c != 422 && c < 9000 {
 		logrus.Error(errorLog)
 	}
 

@@ -110,7 +110,7 @@ func IsFixedPhone(value string) bool {
 
 // bank account
 func IsBankAccount(value string) bool {
-	reg := `^([1-9]{1})(\d{15}|\d{18})$`
+	reg := `^([1-9]{1})(\d{15}|\d{16}|\d{17}|\d{18}|\d{19}|\d{20})$`
 
 	return regexp.MustCompile(reg).MatchString(value)
 }
