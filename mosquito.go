@@ -176,7 +176,7 @@ func grpcInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServe
 	// grpc method
 	interceptorMessage += fmt.Sprintf("grpc_method : %v ,\n ", info.FullMethod)
 	// grpc param
-	interceptorMessage += fmt.Sprintf("grpc_method : %v ,\n ", req)
+	interceptorMessage += fmt.Sprintf("grpc_param : %v ,\n ", req)
 	// 日志
 	logrus.Println(interceptorMessage)
 }
