@@ -113,7 +113,7 @@ func GetClientConn(serviceName string, userCredential ...*UserCredential) (clien
 	}
 
 	// 用户信息
-	if len(userCredential) == 1{
+	if len(userCredential) == 1 && userCredential[0] != nil {
 		opts = append(opts, grpc.WithPerRPCCredentials(userCredential[0]))
 	}
 
@@ -141,7 +141,7 @@ func GetLocalClientConn(serviceName string, userCredential ...*UserCredential) (
 	}
 
 	// 用户信息
-	if len(userCredential) == 1{
+	if len(userCredential) == 1 && userCredential[0] != nil {
 		opts = append(opts, grpc.WithPerRPCCredentials(userCredential[0]))
 	}
 
