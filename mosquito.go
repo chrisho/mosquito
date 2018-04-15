@@ -16,13 +16,19 @@ import (
 	"fmt"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/metadata"
+	"github.com/aliyun/aliyun-log-go-sdk"
+	"strings"
 	"github.com/sirupsen/logrus"
 )
 
 const envFile = "/config/conf.env"
 
-var server *grpc.Server
-var path string
+var (
+	server *grpc.Server
+	path   string
+	// 阿里云日志
+	aliLogOn = strings.ToLower(os.Getenv("AliLogNoBoot")) == "true"
+)
 
 func init() {
 	path, _ = os.Getwd()
@@ -30,6 +36,11 @@ func init() {
 	err := godotenv.Load(path + envFile)
 	if err != nil {
 		grpclog.Error(err)
+	}
+	// 是否启动阿里云日志
+	if aliLogOn {
+		newIpSource()
+		newAliLog()
 	}
 }
 
@@ -156,29 +167,40 @@ func GetLocalClientConn(serviceName string, userCredential ...*UserCredential) (
 
 // 拦截器
 func grpcInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo) {
-	// 拦截消息
-	var interceptorMessage string
+	// 不启动阿里云
+	if !aliLogOn {
+		return
+	}
+	// 阿里云日志内容
+	var contents []*sls.LogContent
 	// metadata
 	if md, ok := metadata.FromIncomingContext(ctx); ok {
 		// authority
 		if data, ok := md[":authority"]; ok {
-			interceptorMessage += fmt.Sprintf("authority : %v ,\n ", data[0])
+			key := "authority"
+			contents = append(contents, &sls.LogContent{Key: &key, Value: &data[0]})
 		}
 		// user_id
 		if data, ok := md["user_id"]; ok {
-			interceptorMessage += fmt.Sprintf("user_id : %v ,\n ", data[0])
+			key := "user_id"
+			contents = append(contents, &sls.LogContent{Key: &key, Value: &data[0]})
 		}
 		// username
 		if data, ok := md["username"]; ok {
-			interceptorMessage += fmt.Sprintf("user_name : %v ,\n ", data[0])
+			key := "username"
+			contents = append(contents, &sls.LogContent{Key: &key, Value: &data[0]})
 		}
 	}
 	// grpc method
-	interceptorMessage += fmt.Sprintf("grpc_method : %v ,\n ", info.FullMethod)
+	methodKey := "grpc_method"
+	methodValue := info.FullMethod
+	contents = append(contents, &sls.LogContent{Key: &methodKey, Value: &methodValue})
 	// grpc param
-	interceptorMessage += fmt.Sprintf("grpc_param : %v ,\n ", req)
-	// 日志
-	logrus.Println(interceptorMessage)
+	paramKey := "grpc_param"
+	paramValue := fmt.Sprint(req)
+	contents = append(contents, &sls.LogContent{Key: &paramKey, Value: &paramValue})
+	// 发送日志
+	pushAliLog(contents)
 }
 
 // userCredential 用户认证
@@ -186,6 +208,7 @@ type UserCredential struct {
 	User map[string]string
 }
 
+// 用户凭证
 func (s UserCredential) GetRequestMetadata(ctx context.Context, uri ...string) (map[string]string, error) {
 	if s.User != nil {
 		return s.User, nil
@@ -203,4 +226,65 @@ func (s UserCredential) RequireTransportSecurity() bool {
 // 用户凭证
 func NewUserCredential() *UserCredential {
 	return new(UserCredential)
+}
+
+// aliLog
+var (
+	logStore               *sls.LogStore
+	ipSource               string
+	projectEndpoint        = os.Getenv("AliLogEndpoint")
+	projectAccessKeyID     = os.Getenv("AliLogAccessKeyID")
+	projectAccessKeySecret = os.Getenv("AliLogAccessKeySecret")
+	projectName            = os.Getenv("AliLogName")
+	logFile                = os.Getenv("AliLogFile")
+	logStoreName           = os.Getenv("AliLogStoreName")
+	logTopic               = os.Getenv("AliLogTopic")
+)
+
+// 本地ip
+func newIpSource() {
+	conn, err := net.Dial("tcp", "163.com:80")
+	if err != nil {
+		ipSource = strings.Split(conn.LocalAddr().String(), ":")[0]
+	}
+}
+
+// 阿里云客户端
+func newAliLog() *sls.LogStore {
+	// 配置
+	logProject := &sls.LogProject{
+		Name:            projectName,
+		Endpoint:        projectEndpoint,
+		AccessKeyID:     projectAccessKeyID,
+		AccessKeySecret: projectAccessKeySecret,
+	}
+	// 实例化客户端
+	var err error
+	logStore, err = logProject.GetLogStore(logStoreName)
+	if err != nil {
+		logrus.Error("logProject.GetLogStore error : " + err.Error())
+	}
+	return logStore
+}
+
+func pushAliLog(contents []*sls.LogContent) {
+	// 日志
+	var slsLogs []*sls.Log
+	// timeNowUnix
+	timeNowUnix := uint32(time.Now().Unix())
+	slsLogs = append(slsLogs, &sls.Log{
+		Time:     &timeNowUnix,
+		Contents: contents,
+	})
+	// 日志组
+	logGroup := &sls.LogGroup{
+		Topic:  &logTopic,
+		Source: &ipSource,
+		Logs:   slsLogs,
+	}
+	// 发送日志
+	err := logStore.PutLogs(logGroup)
+	if err != nil {
+		logrus.Error("logStore.PutLogs error : " + err.Error())
+	}
 }
