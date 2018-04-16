@@ -27,7 +27,7 @@ var (
 	server *grpc.Server
 	path   string
 	// 阿里云日志
-	aliLogOn = strings.ToLower(os.Getenv("AliLogNoBoot")) == "true"
+	aliLogOff = os.Getenv("AliLogNoBoot") == "true"
 )
 
 func init() {
@@ -38,7 +38,7 @@ func init() {
 		grpclog.Error(err)
 	}
 	// 是否启动阿里云日志
-	if aliLogOn {
+	if !aliLogOff {
 		newIpSource()
 		newAliLog()
 	}
@@ -168,7 +168,7 @@ func GetLocalClientConn(serviceName string, userCredential ...*UserCredential) (
 // 拦截器
 func grpcInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo) {
 	// 不启动阿里云
-	if !aliLogOn {
+	if aliLogOff || LogStore == nil {
 		return
 	}
 	// 阿里云日志内容
@@ -230,7 +230,7 @@ func NewUserCredential() *UserCredential {
 
 // aliLog
 var (
-	logStore               *sls.LogStore
+	LogStore               *sls.LogStore
 	ipSource               string
 	projectEndpoint        = os.Getenv("AliLogEndpoint")
 	projectAccessKeyID     = os.Getenv("AliLogAccessKeyID")
@@ -260,11 +260,11 @@ func newAliLog() *sls.LogStore {
 	}
 	// 实例化客户端
 	var err error
-	logStore, err = logProject.GetLogStore(logStoreName)
+	LogStore, err = logProject.GetLogStore(logStoreName)
 	if err != nil {
 		logrus.Error("logProject.GetLogStore error : " + err.Error())
 	}
-	return logStore
+	return LogStore
 }
 
 func pushAliLog(contents []*sls.LogContent) {
@@ -283,7 +283,7 @@ func pushAliLog(contents []*sls.LogContent) {
 		Logs:   slsLogs,
 	}
 	// 发送日志
-	err := logStore.PutLogs(logGroup)
+	err := LogStore.PutLogs(logGroup)
 	if err != nil {
 		logrus.Error("logStore.PutLogs error : " + err.Error())
 	}
