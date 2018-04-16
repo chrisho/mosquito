@@ -37,11 +37,6 @@ func init() {
 	if err != nil {
 		grpclog.Error(err)
 	}
-	// 是否启动阿里云日志
-	if !aliLogOff {
-		newIpSource()
-		newAliLog()
-	}
 }
 
 func GetServer() *grpc.Server {
@@ -168,8 +163,13 @@ func GetLocalClientConn(serviceName string, userCredential ...*UserCredential) (
 // 拦截器
 func grpcInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo) {
 	// 不启动阿里云
-	if aliLogOff || LogStore == nil {
+	if aliLogOff {
 		return
+	}
+	// 实例化客户端
+	if LogStore == nil {
+		newIpSource()
+		newAliLog()
 	}
 	// 阿里云日志内容
 	var contents []*sls.LogContent
