@@ -10,45 +10,35 @@ import (
 	"time"
 
 	"github.com/aliyun/aliyun-log-go-sdk"
-	"github.com/aliyun/aliyun-log-go-sdk/example/util"
-	"github.com/gogo/protobuf/proto"
 	log "github.com/sirupsen/logrus"
 )
 
 // init log params
 var (
-	noBoot                 = os.Getenv("AliLogNoBoot")
+	// 阿里云日志
+	LogOff                 = strings.ToLower(os.Getenv("AliLogNoBoot")) == "true"
+	LogStore               *sls.LogStore
+	IpSource               string
 	projectEndpoint        = os.Getenv("AliLogEndpoint")
 	projectAccessKeyID     = os.Getenv("AliLogAccessKeyID")
 	projectAccessKeySecret = os.Getenv("AliLogAccessKeySecret")
 	projectName            = os.Getenv("AliLogName")
 	logFile                = os.Getenv("AliLogFile")
 	logStoreName           = os.Getenv("AliLogStoreName")
-	logTopic               = os.Getenv("AliLogTopic")
+	LogTopic               = os.Getenv("AliLogTopic")
 )
 
 type Log struct {
-	LOG_FILE string
-
-	LOGSTORE_NAME string
-
-	LOG_TOPIC  string
-	LOG_SOURCE string
-
 	lineChan chan []string
 }
 
 func init() {
-	if projectEndpoint == "" ||
-		projectAccessKeyID == "" ||
-		projectAccessKeySecret == "" ||
-		projectName == "" ||
-		logFile == "" ||
-		logStoreName == "" ||
-		logTopic == "" ||
-		noBoot == "true" {
+	// 不启动阿里云
+	if LogOff {
 		return
 	}
+	newIpSource()
+	newAliLog()
 
 	// init log output
 	fileHandle, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
@@ -61,40 +51,42 @@ func init() {
 	NewLog()
 }
 
-func CatchPanic() {
-	if err := recover(); err != nil {
-		log.Error(err)
+// 本地ip
+func newIpSource() {
+	conn, err := net.Dial("tcp", "163.com:80")
+	if err != nil {
+		IpSource = strings.Split(conn.LocalAddr().String(), ":")[0]
 	}
 }
 
+// 阿里云客户端
+func newAliLog() *sls.LogStore {
+	// 配置
+	logProject := &sls.LogProject{
+		Name:            projectName,
+		Endpoint:        projectEndpoint,
+		AccessKeyID:     projectAccessKeyID,
+		AccessKeySecret: projectAccessKeySecret,
+	}
+	// 实例化客户端
+	var err error
+	LogStore, err = logProject.GetLogStore(logStoreName)
+	if err != nil {
+		log.Error("logProject.GetLogStore error : " + err.Error())
+	}
+	return LogStore
+}
+
 func NewLog() {
-
-	conn, err := net.Dial("tcp", "163.com:80")
-	ip := ""
-	if err == nil {
-		defer conn.Close()
-		ip = strings.Split(conn.LocalAddr().String(), ":")[0]
-	}
-
 	Log := &Log{
-		logFile,
-		logStoreName,
-		logTopic,
-		ip,
-		make(chan []string, 100),
+		lineChan: make(chan []string, 100),
 	}
-
-	util.Project.Endpoint = projectEndpoint
-	util.Project.AccessKeyID = projectAccessKeyID
-	util.Project.AccessKeySecret = projectAccessKeySecret
-	util.Project.Name = projectName
-
 	Log.start()
 }
 
 func (Log *Log) start() {
-	os.Remove(Log.LOG_FILE)
-	logf, err := os.OpenFile(Log.LOG_FILE, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	os.Remove(logFile)
+	logf, err := os.OpenFile(logFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
 		log.Println(err)
 	}
@@ -110,7 +102,7 @@ func (Log *Log) getLogFile(ch chan<- []string) {
 	for {
 		time.Sleep(10 * time.Second)
 
-		logf, err := os.OpenFile(Log.LOG_FILE, os.O_EXCL|os.O_RDONLY, 0666)
+		logf, err := os.OpenFile(logFile, os.O_EXCL|os.O_RDONLY, 0666)
 		if err != nil {
 			log.Println(err)
 		}
@@ -128,62 +120,59 @@ func (Log *Log) getLogFile(ch chan<- []string) {
 		if len(readLines) > 0 {
 			ch <- readLines
 		}
-		os.Truncate(Log.LOG_FILE, 0)
+		os.Truncate(logFile, 0)
 	}
 }
 
 func (Log *Log) pushToAliyun(ch <-chan []string) {
-	logstore_name := Log.LOGSTORE_NAME
-
-	logstore, err := util.Project.GetLogStore(logstore_name)
-	if err != nil {
-		log.Printf("GetLogStore fail, err: ", err)
-		return
-	}
-
+	// json struct
 	type MessageLog struct {
 		Level, Msg, Time string
 	}
-
+	var msgKey = "msg"
+	var timeKey = "time"
+	var levelKey = "level"
+	// 信道
 	for l := range ch {
-
-		slslogs := []*sls.Log{}
+		// 日志
+		var slsLogs []*sls.Log
+		// 监听
 		for _, v := range l {
-			content := []*sls.LogContent{}
-
+			var content []*sls.LogContent
+			// json
 			var message MessageLog
 			json.Unmarshal([]byte(v), &message)
-
+			// 日志内容
 			content = append(content,
 				&sls.LogContent{
-					Key:   proto.String("msg"),
-					Value: proto.String(message.Msg),
+					Key:   &msgKey,
+					Value: &message.Msg,
 				},
 				&sls.LogContent{
-					Key:   proto.String("time"),
-					Value: proto.String(message.Time),
+					Key:   &timeKey,
+					Value: &message.Time,
 				},
 				&sls.LogContent{
-					Key:   proto.String("level"),
-					Value: proto.String(message.Level),
+					Key:   &levelKey,
+					Value: &message.Level,
 				})
-
-			if content != nil {
-				slslogs = append(slslogs, &sls.Log{
-					Time:     proto.Uint32(uint32(time.Now().Unix())),
+			// 日志内容
+			if len(content) > 0 {
+				timeNowUnix := uint32(time.Now().Unix())
+				slsLogs = append(slsLogs, &sls.Log{
+					Time:     &timeNowUnix,
 					Contents: content,
 				})
 			}
 		}
-
-		if slslogs != nil {
-			loggroup := &sls.LogGroup{
-				Topic:  proto.String(Log.LOG_TOPIC),
-				Source: proto.String(Log.LOG_SOURCE),
-				Logs:   slslogs,
+		// 发送日志
+		if len(slsLogs) > 0 {
+			logGroup := &sls.LogGroup{
+				Topic:  &LogTopic,
+				Source: &IpSource,
+				Logs:   slsLogs,
 			}
-			err = logstore.PutLogs(loggroup)
-			if err != nil {
+			if err := LogStore.PutLogs(logGroup); err != nil {
 				log.Printf("PutLogs fail, err: %s\n", err)
 			}
 		}

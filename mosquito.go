@@ -17,8 +17,8 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/metadata"
 	"github.com/aliyun/aliyun-log-go-sdk"
-	"strings"
 	"github.com/sirupsen/logrus"
+	"github.com/chrisho/mosquito/alilog"
 )
 
 const envFile = "/config/conf.env"
@@ -26,8 +26,6 @@ const envFile = "/config/conf.env"
 var (
 	server *grpc.Server
 	path   string
-	// 阿里云日志
-	aliLogOff = os.Getenv("AliLogNoBoot") == "true"
 )
 
 func init() {
@@ -163,13 +161,8 @@ func GetLocalClientConn(serviceName string, userCredential ...*UserCredential) (
 // 拦截器
 func grpcInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo) {
 	// 不启动阿里云
-	if aliLogOff {
+	if alilog.LogOff {
 		return
-	}
-	// 实例化客户端
-	if LogStore == nil {
-		newIpSource()
-		newAliLog()
 	}
 	// 阿里云日志内容
 	var contents []*sls.LogContent
@@ -228,45 +221,6 @@ func NewUserCredential() *UserCredential {
 	return new(UserCredential)
 }
 
-// aliLog
-var (
-	LogStore               *sls.LogStore
-	ipSource               string
-	projectEndpoint        = os.Getenv("AliLogEndpoint")
-	projectAccessKeyID     = os.Getenv("AliLogAccessKeyID")
-	projectAccessKeySecret = os.Getenv("AliLogAccessKeySecret")
-	projectName            = os.Getenv("AliLogName")
-	logFile                = os.Getenv("AliLogFile")
-	logStoreName           = os.Getenv("AliLogStoreName")
-	logTopic               = os.Getenv("AliLogTopic")
-)
-
-// 本地ip
-func newIpSource() {
-	conn, err := net.Dial("tcp", "163.com:80")
-	if err != nil {
-		ipSource = strings.Split(conn.LocalAddr().String(), ":")[0]
-	}
-}
-
-// 阿里云客户端
-func newAliLog() *sls.LogStore {
-	// 配置
-	logProject := &sls.LogProject{
-		Name:            projectName,
-		Endpoint:        projectEndpoint,
-		AccessKeyID:     projectAccessKeyID,
-		AccessKeySecret: projectAccessKeySecret,
-	}
-	// 实例化客户端
-	var err error
-	LogStore, err = logProject.GetLogStore(logStoreName)
-	if err != nil {
-		logrus.Error("logProject.GetLogStore error : " + err.Error())
-	}
-	return LogStore
-}
-
 func pushAliLog(contents []*sls.LogContent) {
 	// 日志
 	var slsLogs []*sls.Log
@@ -278,12 +232,12 @@ func pushAliLog(contents []*sls.LogContent) {
 	})
 	// 日志组
 	logGroup := &sls.LogGroup{
-		Topic:  &logTopic,
-		Source: &ipSource,
+		Topic:  &alilog.LogTopic,
+		Source: &alilog.IpSource,
 		Logs:   slsLogs,
 	}
 	// 发送日志
-	err := LogStore.PutLogs(logGroup)
+	err := alilog.LogStore.PutLogs(logGroup)
 	if err != nil {
 		logrus.Error("logStore.PutLogs error : " + err.Error())
 	}

@@ -30,5 +30,5 @@ func GrpcErrorCode(err error) codes.Code {
 	if ok {
 		return s.Code()
 	}
-	return codes.Code(0)
+	return 0
 }
