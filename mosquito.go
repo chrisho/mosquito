@@ -161,7 +161,7 @@ func GetLocalClientConn(serviceName string, userCredential ...*UserCredential) (
 // 拦截器
 func grpcInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo) {
 	// 不启动阿里云
-	if alilog.LogOff {
+	if alilog.LogOff || alilog.LogStore == nil {
 		return
 	}
 	// 阿里云日志内容
