@@ -34,7 +34,7 @@ type Log struct {
 
 func init() {
 	// 不启动阿里云
-	if LogOff {
+	if LogOff || len(logStoreName) == 0 {
 		return
 	}
 	newIpSource()
