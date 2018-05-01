@@ -104,7 +104,12 @@ func GetClientConn(serviceName string, userCredential ...*UserCredential) (clien
 	}
 
 	var opts []grpc.DialOption
+	var optsCallOption []grpc.CallOption
 	var creds credentials.TransportCredentials
+
+	// 设置接收最大条数
+	optsCallOption = append(optsCallOption, grpc.MaxCallRecvMsgSize(-1))
+	opts = append(opts, grpc.WithDefaultCallOptions(optsCallOption...))
 
 	if helper.GetEnv("SSL") == "true" {
 		creds, err = credentials.NewClientTLSFromFile("config/server.crt", serviceName+".local")
@@ -132,7 +137,12 @@ func GetLocalClientConn(serviceName string, userCredential ...*UserCredential) (
 	address := helper.GetServerAddress()
 
 	var opts []grpc.DialOption
+	var optsCallOption []grpc.CallOption
 	var creds credentials.TransportCredentials
+
+	// 设置接收最大条数
+	optsCallOption = append(optsCallOption, grpc.MaxCallRecvMsgSize(-1))
+	opts = append(opts, grpc.WithDefaultCallOptions(optsCallOption...))
 
 	if helper.GetEnv("SSL") == "true" {
 		creds, err = credentials.NewClientTLSFromFile("config/server.crt", serviceName+".local")
