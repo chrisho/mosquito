@@ -141,7 +141,7 @@ func GetLocalClientConn(serviceName string, userCredential ...*UserCredential) (
 	var creds credentials.TransportCredentials
 
 	// 设置接收最大条数
-	optsCallOption = append(optsCallOption, grpc.MaxCallRecvMsgSize(-1))
+	optsCallOption = append(optsCallOption, grpc.MaxCallRecvMsgSize(100 * 1024 * 1024))
 	opts = append(opts, grpc.WithDefaultCallOptions(optsCallOption...))
 
 	if helper.GetEnv("SSL") == "true" {
