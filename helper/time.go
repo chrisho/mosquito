@@ -4,15 +4,15 @@ import (
 	"time"
 )
 
-const timezone = "Asia/ShangHai"
-
-func init() {
-	var err error
-	// 设置时间区
-	if time.Local, err = time.LoadLocation(timezone); err != nil {
-		println(err)
-	}
-}
+//const timezone = "Asia/ShangHai"
+//
+//func init() {
+//	var err error
+//	// 设置时间区
+//	if time.Local, err = time.LoadLocation(timezone); err != nil {
+//		println(err)
+//	}
+//}
 
 const (
 	YYYYMMDDHHIISS = "2006-01-02 15:04:05"
