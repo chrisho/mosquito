@@ -7,10 +7,11 @@ import (
 //const timezone = "Asia/ShangHai"
 //
 //func init() {
-//	var err error
 //	// 设置时间区
-//	if time.Local, err = time.LoadLocation(timezone); err != nil {
+//	if loc, err := time.LoadLocation(timezone); err != nil {
 //		println(err)
+//	} else {
+//		time.Local = loc
 //	}
 //}
 
