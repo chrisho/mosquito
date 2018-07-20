@@ -60,3 +60,9 @@ func ImplodeMapInt32String(maps map[int32]string, sep string) (str string) {
 
 	return
 }
+
+
+// 将"_"转换为"-"
+func ConvertUnderlineToWhippletree(str string) (string) {
+	return strings.Replace(str, "_", "-", -1)
+}

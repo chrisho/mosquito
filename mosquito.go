@@ -2,17 +2,13 @@ package mosquito
 
 import (
 	"github.com/chrisho/mosquito/helper"
-	"github.com/chrisho/mosquito/zookeeper"
-	"github.com/chrisho/mosquito/redis"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/grpclog"
 	"net"
 	"os"
-	"strconv"
 	"time"
-	"log"
 	"fmt"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/metadata"
@@ -63,19 +59,12 @@ func GetServer() *grpc.Server {
 	return server
 }
 
+
+var port = ":10443"
+
 func RunServer() {
 
-	_, err := zookeeper.RegMicroServer()
-
-	if err != nil {
-		grpclog.Fatal("reg server fail, ", err)
-	}
-
-	listenAddr := helper.GetServerAddress()
-
-	log.Print("server address is ", listenAddr)
-
-	listen, err := net.Listen("tcp", ":"+helper.GetEnv("ServerPort"))
+	listen, err := net.Listen("tcp", port)
 	if err != nil {
 		grpclog.Error(err)
 	}
@@ -86,55 +75,21 @@ func RunServer() {
 	}
 }
 
-var prefixKey = "zk:"
-
 func GetClientConn(serviceName string, userCredential ...*UserCredential) (client *grpc.ClientConn, err error) {
 
-	db, _ := strconv.Atoi(helper.GetEnv("ZkRedisDb"))
-	redisClient, err := redis.NewConnDB(db)
-	if err != nil {
-		return
-	}
-	defer redisClient.Close()
-	redisServiceName := prefixKey + helper.GetEnv("ZkRootPath") + "/" + serviceName
-
-	addr, err := redisClient.Get(redisServiceName).Result()
-	if err != nil {
-		return
-	}
-
-	var opts []grpc.DialOption
-	var optsCallOption []grpc.CallOption
-	var creds credentials.TransportCredentials
-
-	// 设置接收最大条数
-	optsCallOption = append(optsCallOption, grpc.MaxCallRecvMsgSize(100 * 1024 * 1024))
-	opts = append(opts, grpc.WithDefaultCallOptions(optsCallOption...))
-
-	if helper.GetEnv("SSL") == "true" {
-		creds, err = credentials.NewClientTLSFromFile("config/server.crt", serviceName+".local")
-		if err != nil {
-			return
-		}
-		opts = append(opts, grpc.WithTransportCredentials(creds))
-	} else {
-		opts = append(opts, grpc.WithInsecure())
-	}
-
-	// 用户信息
-	if len(userCredential) == 1 && userCredential[0] != nil {
-		opts = append(opts, grpc.WithPerRPCCredentials(userCredential[0]))
-	}
-
-	opts = append(opts, grpc.WithBlock())
-	opts = append(opts, grpc.WithTimeout(5*time.Second))
-	client, err = grpc.Dial(addr, opts...)
-	return
+	host := helper.ConvertUnderlineToWhippletree(serviceName)+helper.GetEnv("ClusterDomain")
+	address := serviceName+helper.GetEnv("ClusterDomain")
+	return setClientConn(host, address, userCredential)
 }
 
 func GetLocalClientConn(serviceName string, userCredential ...*UserCredential) (conn *grpc.ClientConn, err error) {
 
-	address := helper.GetServerAddress()
+	host := helper.ConvertUnderlineToWhippletree(serviceName)+helper.GetEnv("ClusterDomain")
+	address := "127.0.0.1"
+	return setClientConn(host, address, userCredential)
+}
+
+func setClientConn(host string, address string, userCredential []*UserCredential) (conn *grpc.ClientConn, err error) {
 
 	var opts []grpc.DialOption
 	var optsCallOption []grpc.CallOption
@@ -144,23 +99,27 @@ func GetLocalClientConn(serviceName string, userCredential ...*UserCredential) (
 	optsCallOption = append(optsCallOption, grpc.MaxCallRecvMsgSize(100 * 1024 * 1024))
 	opts = append(opts, grpc.WithDefaultCallOptions(optsCallOption...))
 
+	// client to server
 	if helper.GetEnv("SSL") == "true" {
-		creds, err = credentials.NewClientTLSFromFile("config/server.crt", serviceName+".local")
+		// k8s-k8s
+		creds, err = credentials.NewClientTLSFromFile("config/server.crt", host)
 		if err != nil {
 			panic(err)
 		}
 		opts = append(opts, grpc.WithTransportCredentials(creds))
 	} else {
-		opts = append(opts, grpc.WithInsecure())
+		// 本机-k8s
 	}
+	// 本机-局域网
+	// 本机-本机
 
 	// 用户信息
 	if len(userCredential) == 1 && userCredential[0] != nil {
 		opts = append(opts, grpc.WithPerRPCCredentials(userCredential[0]))
 	}
-
-	grpclog.Info("get client server address is ", address)
-	conn, err = grpc.Dial(address, opts...)
+	grpclog.Info("Certificate Host: ", host)
+	grpclog.Info("Connect Server: ", address+port)
+	conn, err = grpc.Dial(address+port, opts...)
 	if err != nil {
 		grpclog.Error(err)
 	}
