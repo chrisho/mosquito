@@ -15,6 +15,7 @@ import (
 	"github.com/aliyun/aliyun-log-go-sdk"
 	"github.com/sirupsen/logrus"
 	"github.com/chrisho/mosquito/alilog"
+	"log"
 )
 
 const envFile = "/config/conf.env"
@@ -78,7 +79,7 @@ func RunServer() {
 func GetClientConn(serviceName string, userCredential ...*UserCredential) (client *grpc.ClientConn, err error) {
 
 	host := helper.ConvertUnderlineToWhippletree(serviceName)+helper.GetEnv("ClusterDomain")
-	address := serviceName+helper.GetEnv("ClusterDomain")
+	address := host
 	return setClientConn(host, address, userCredential)
 }
 
@@ -90,11 +91,10 @@ func GetLocalClientConn(serviceName string, userCredential ...*UserCredential) (
 }
 
 func setClientConn(host string, address string, userCredential []*UserCredential) (conn *grpc.ClientConn, err error) {
-
 	var opts []grpc.DialOption
 	var optsCallOption []grpc.CallOption
 	var creds credentials.TransportCredentials
-
+	log.Println(host, address)
 	// 设置接收最大条数
 	optsCallOption = append(optsCallOption, grpc.MaxCallRecvMsgSize(100 * 1024 * 1024))
 	opts = append(opts, grpc.WithDefaultCallOptions(optsCallOption...))
@@ -102,7 +102,7 @@ func setClientConn(host string, address string, userCredential []*UserCredential
 	// client to server
 	if helper.GetEnv("SSL") == "true" {
 		// k8s-k8s
-		creds, err = credentials.NewClientTLSFromFile("config/server.crt", host)
+		creds, err = credentials.NewClientTLSFromFile("config/server.crt", "local")
 		if err != nil {
 			panic(err)
 		}
