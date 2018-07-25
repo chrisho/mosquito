@@ -38,7 +38,9 @@ func GetServer() *grpc.Server {
 	// grpc 选项
 	var opts []grpc.ServerOption
 	if helper.GetEnv("SSL") == "true" {
-		creds, err := credentials.NewServerTLSFromFile(path+"/config/server.crt", path+"/config/server.key")
+		certFile := helper.GetEnv("SSLCertFile")
+		keyFile := helper.GetEnv("SSLKeyFile")
+		creds, err := credentials.NewServerTLSFromFile(path+"/config/"+certFile, path+"/config/"+keyFile)
 		if err != nil {
 			grpclog.Errorf("Failed to generate credentials %v", err)
 		}
@@ -78,14 +80,15 @@ func RunServer() {
 
 func GetClientConn(serviceName string, userCredential ...*UserCredential) (client *grpc.ClientConn, err error) {
 
-	host := helper.ConvertUnderlineToWhippletree(serviceName)+helper.GetEnv("ClusterDomain")
-	address := host
+	serviceName = helper.ConvertUnderlineToWhippletree(serviceName)
+	host := serviceName+helper.GetEnv("SSLServerName")
+	address := serviceName+helper.GetEnv("ClusterDomain")
 	return setClientConn(host, address, userCredential)
 }
 
 func GetLocalClientConn(serviceName string, userCredential ...*UserCredential) (conn *grpc.ClientConn, err error) {
 
-	host := helper.ConvertUnderlineToWhippletree(serviceName)+helper.GetEnv("ClusterDomain")
+	host := helper.ConvertUnderlineToWhippletree(serviceName)+helper.GetEnv("SSLServerName")
 	address := "127.0.0.1"
 	return setClientConn(host, address, userCredential)
 }
@@ -94,7 +97,7 @@ func setClientConn(host string, address string, userCredential []*UserCredential
 	var opts []grpc.DialOption
 	var optsCallOption []grpc.CallOption
 	var creds credentials.TransportCredentials
-	log.Println(host, address)
+
 	// 设置接收最大条数
 	optsCallOption = append(optsCallOption, grpc.MaxCallRecvMsgSize(100 * 1024 * 1024))
 	opts = append(opts, grpc.WithDefaultCallOptions(optsCallOption...))
@@ -102,13 +105,15 @@ func setClientConn(host string, address string, userCredential []*UserCredential
 	// client to server
 	if helper.GetEnv("SSL") == "true" {
 		// k8s-k8s
-		creds, err = credentials.NewClientTLSFromFile("config/server.crt", "local")
+		certFile := helper.GetEnv("SSLCertFile")
+		creds, err = credentials.NewClientTLSFromFile("config/"+certFile, host)
 		if err != nil {
 			panic(err)
 		}
 		opts = append(opts, grpc.WithTransportCredentials(creds))
 	} else {
 		// 本机-k8s
+		opts = append(opts, grpc.WithInsecure())
 	}
 	// 本机-局域网
 	// 本机-本机
@@ -117,8 +122,10 @@ func setClientConn(host string, address string, userCredential []*UserCredential
 	if len(userCredential) == 1 && userCredential[0] != nil {
 		opts = append(opts, grpc.WithPerRPCCredentials(userCredential[0]))
 	}
+	log.Println(address+port, host)
 	grpclog.Info("Certificate Host: ", host)
 	grpclog.Info("Connect Server: ", address+port)
+	//conn, err = grpc.Dial(address+port, opts...)
 	conn, err = grpc.Dial(address+port, opts...)
 	if err != nil {
 		grpclog.Error(err)
