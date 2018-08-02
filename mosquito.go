@@ -80,14 +80,14 @@ func RunServer() {
 func GetClientConn(serviceName string, userCredential ...*UserCredential) (client *grpc.ClientConn, err error) {
 
 	serviceName = helper.ConvertUnderlineToWhippletree(serviceName)
-	host := serviceName+helper.GetEnv("SSLServerName")
-	address := serviceName+helper.GetEnv("ClusterDomain")
+	host := serviceName+helper.GetEnv("SSLSuffixServerName")
+	address := serviceName+helper.GetEnv("ClusterSuffixDomain")
 	return setClientConn(host, address, userCredential)
 }
 
 func GetLocalClientConn(serviceName string, userCredential ...*UserCredential) (conn *grpc.ClientConn, err error) {
 
-	host := helper.ConvertUnderlineToWhippletree(serviceName)+helper.GetEnv("SSLServerName")
+	host := helper.ConvertUnderlineToWhippletree(serviceName)+helper.GetEnv("SSLSuffixServerName")
 	address := "127.0.0.1"
 	return setClientConn(host, address, userCredential)
 }
