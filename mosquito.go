@@ -23,6 +23,7 @@ const envFile = "/config/conf.env"
 var (
 	server *grpc.Server
 	path   string
+	port = ":50051"
 )
 
 func init() {
@@ -62,8 +63,6 @@ func GetServer() *grpc.Server {
 	return server
 }
 
-
-var port = ":10443"
 
 func RunServer() {
 
@@ -105,8 +104,8 @@ func setClientConn(host string, address string, userCredential []*UserCredential
 	// client to server
 	if helper.GetEnv("SSL") == "true" {
 		// k8s-k8s
-		certFile := helper.GetEnv("SSLCertFile")
-		creds, err = credentials.NewClientTLSFromFile("config/"+certFile, host)
+		certFile := helper.GetEnv("SSLCACertFile")
+		creds, err = credentials.NewClientTLSFromFile(path+"/config/"+certFile, host)
 		if err != nil {
 			panic(err)
 		}
