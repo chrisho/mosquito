@@ -42,10 +42,11 @@ func GetServer() *grpc.Server {
 	if strings.ToLower(helper.GetEnv("SSL")) == "true" {
 		certFile := helper.GetEnv("SSLCertFile")
 		keyFile := helper.GetEnv("SSLKeyFile")
-		creds, err := credentials.NewServerTLSFromFile(path+"/config/"+certFile, path+"/config/"+keyFile)
+		creds, err := credentials.NewServerTLSFromFile(path+"/"+certFile, path+"/"+keyFile)
 		if err != nil {
 			grpclog.Errorf("Failed to generate credentials %v", err)
 		}
+		log.Println("set grpc with credentials")
 		opts = []grpc.ServerOption{grpc.Creds(creds)}
 	}
 
@@ -66,12 +67,12 @@ func GetServer() *grpc.Server {
 
 
 func RunServer() {
-
 	listen, err := net.Listen("tcp", port)
 	if err != nil {
 		grpclog.Error(err)
 	}
 
+	log.Println("listening TCP: " + port)
 	err = server.Serve(listen)
 	if err != nil {
 		grpclog.Fatal(err)
@@ -106,7 +107,7 @@ func setClientConn(host string, address string, userCredential []*UserCredential
 	if strings.ToLower(helper.GetEnv("SSL")) == "true" {
 		// k8s-k8s
 		certFile := helper.GetEnv("SSLCACertFile")
-		creds, err = credentials.NewClientTLSFromFile(path+"/config/"+certFile, host)
+		creds, err = credentials.NewClientTLSFromFile(path+"/"+certFile, host)
 		if err != nil {
 			panic(err)
 		}
