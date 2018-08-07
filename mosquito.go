@@ -24,7 +24,7 @@ const envFile = "/config/conf.env"
 var (
 	server *grpc.Server
 	path   string
-	port = ":10007"
+	port = ":50051"
 )
 
 func init() {
