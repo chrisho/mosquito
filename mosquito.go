@@ -16,6 +16,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/chrisho/mosquito/alilog"
 	"log"
+	"strings"
 )
 
 const envFile = "/config/conf.env"
@@ -23,7 +24,7 @@ const envFile = "/config/conf.env"
 var (
 	server *grpc.Server
 	path   string
-	port = ":50051"
+	port = ":10007"
 )
 
 func init() {
@@ -38,7 +39,7 @@ func init() {
 func GetServer() *grpc.Server {
 	// grpc 选项
 	var opts []grpc.ServerOption
-	if helper.GetEnv("SSL") == "true" {
+	if strings.ToLower(helper.GetEnv("SSL")) == "true" {
 		certFile := helper.GetEnv("SSLCertFile")
 		keyFile := helper.GetEnv("SSLKeyFile")
 		creds, err := credentials.NewServerTLSFromFile(path+"/config/"+certFile, path+"/config/"+keyFile)
@@ -102,7 +103,7 @@ func setClientConn(host string, address string, userCredential []*UserCredential
 	opts = append(opts, grpc.WithDefaultCallOptions(optsCallOption...))
 
 	// client to server
-	if helper.GetEnv("SSL") == "true" {
+	if strings.ToLower(helper.GetEnv("SSL")) == "true" {
 		// k8s-k8s
 		certFile := helper.GetEnv("SSLCACertFile")
 		creds, err = credentials.NewClientTLSFromFile(path+"/config/"+certFile, host)
@@ -188,7 +189,7 @@ func (s UserCredential) GetRequestMetadata(ctx context.Context, uri ...string) (
 }
 
 func (s UserCredential) RequireTransportSecurity() bool {
-	return helper.GetEnv("SSL") == "true"
+	return strings.ToLower(helper.GetEnv("SSL")) == "true"
 }
 
 // 用户凭证
