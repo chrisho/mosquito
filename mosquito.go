@@ -112,13 +112,11 @@ func GetClientConn(serviceName string, userCredential ...*UserCredential) (clien
 	opts = append(opts, grpc.WithDefaultCallOptions(optsCallOption...))
 
 	if helper.GetEnv("SSL") == "true" {
-		if serviceName == "service_statistic_datas" {
-			fmt.Println("run tls service_statistic_datas")
-			creds, err = credentials.NewClientTLSFromFile("config/server.pem", serviceName+".sude.com")
-		} else {
-			fmt.Println("run tls " + serviceName)
+		//if serviceName == "service_statistic_datas" {
+		//	creds, err = credentials.NewClientTLSFromFile("config/server.pem", serviceName+".sude.com")
+		//} else {
 			creds, err = credentials.NewClientTLSFromFile("config/server.crt", serviceName+".local")
-		}
+		//}
 		if err != nil {
 			return
 		}
