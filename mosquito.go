@@ -65,8 +65,10 @@ func GetServer() *grpc.Server {
 	return server
 }
 
-
 func RunServer() {
+
+	isDebug()
+
 	listen, err := net.Listen("tcp", port)
 	if err != nil {
 		grpclog.Error(err)
@@ -88,6 +90,8 @@ func GetClientConn(serviceName string, userCredential ...*UserCredential) (clien
 }
 
 func GetLocalClientConn(serviceName string, userCredential ...*UserCredential) (conn *grpc.ClientConn, err error) {
+
+	isDebug()
 
 	host := helper.ConvertUnderlineToWhippletree(serviceName)+helper.GetEnv("SSLSuffixServerName")
 	address := "127.0.0.1"
@@ -217,5 +221,16 @@ func pushAliLog(contents []*sls.LogContent) {
 	err := alilog.LogStore.PutLogs(logGroup)
 	if err != nil {
 		logrus.Error("logStore.PutLogs error : " + err.Error())
+	}
+}
+
+// Debug设置
+// Debug=true 开启调试
+// DebugServerListenPort=:50051 自定义端口
+func isDebug() {
+	if strings.ToLower(helper.GetEnv("Debug")) == "true" {
+		if helper.GetEnv("DebugServerListenPort") != "" {
+			port = helper.GetEnv("DebugServerListenPort")
+		}
 	}
 }
