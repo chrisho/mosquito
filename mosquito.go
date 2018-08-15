@@ -25,6 +25,7 @@ var (
 	server *grpc.Server
 	path   string
 	port = ":50051"
+	debugPort = ""
 )
 
 func init() {
@@ -69,12 +70,12 @@ func RunServer() {
 
 	isDebug()
 
-	listen, err := net.Listen("tcp", port)
+	listen, err := net.Listen("tcp", debugPort)
 	if err != nil {
 		grpclog.Error(err)
 	}
 
-	log.Println("listening TCP: " + port)
+	log.Println("listening TCP: " + debugPort)
 	err = server.Serve(listen)
 	if err != nil {
 		grpclog.Fatal(err)
@@ -83,6 +84,7 @@ func RunServer() {
 
 func GetClientConn(serviceName string, userCredential ...*UserCredential) (client *grpc.ClientConn, err error) {
 
+	debugPort = ""
 	serviceName = helper.ConvertUnderlineToWhippletree(serviceName)
 	host := serviceName+helper.GetEnv("SSLSuffixServerName")
 	address := serviceName+helper.GetEnv("ClusterSuffixDomain")
@@ -127,11 +129,17 @@ func setClientConn(host string, address string, userCredential []*UserCredential
 	if len(userCredential) == 1 && userCredential[0] != nil {
 		opts = append(opts, grpc.WithPerRPCCredentials(userCredential[0]))
 	}
-	log.Println(address+port, host)
+	var runPort string
+	if debugPort != "" {
+		runPort = debugPort
+	} else {
+		runPort = port
+	}
+	log.Println(address+runPort, host)
 	grpclog.Info("Certificate Host: ", host)
-	grpclog.Info("Connect Server: ", address+port)
+	grpclog.Info("Connect Server: ", address+runPort)
 	//conn, err = grpc.Dial(address+port, opts...)
-	conn, err = grpc.Dial(address+port, opts...)
+	conn, err = grpc.Dial(address+runPort, opts...)
 	if err != nil {
 		grpclog.Error(err)
 	}
@@ -230,7 +238,7 @@ func pushAliLog(contents []*sls.LogContent) {
 func isDebug() {
 	if strings.ToLower(helper.GetEnv("Debug")) == "true" {
 		if helper.GetEnv("DebugServerListenPort") != "" {
-			port = helper.GetEnv("DebugServerListenPort")
+			debugPort = helper.GetEnv("DebugServerListenPort")
 		}
 	}
 }
