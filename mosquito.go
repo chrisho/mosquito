@@ -1,32 +1,32 @@
 package mosquito
 
 import (
+	"fmt"
+	"github.com/aliyun/aliyun-log-go-sdk"
+	"github.com/chrisho/mosquito/alilog"
 	"github.com/chrisho/mosquito/helper"
 	"github.com/joho/godotenv"
+	"github.com/sirupsen/logrus"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/grpclog"
+	"google.golang.org/grpc/metadata"
+	"log"
 	"net"
 	"os"
-	"time"
-	"fmt"
-	"golang.org/x/net/context"
-	"google.golang.org/grpc/metadata"
-	"github.com/aliyun/aliyun-log-go-sdk"
-	"github.com/sirupsen/logrus"
-	"github.com/chrisho/mosquito/alilog"
-	"log"
 	"strings"
+	"time"
 )
 
 const envFile = "/config/conf.env"
 
 var (
-	server *grpc.Server
-	path   string
-	port = ":50051"
+	server    *grpc.Server
+	path      string
+	port      = ":50051"
 	debugPort = ""
-	runPort = ":50051"
+	runPort   = ":50051"
 )
 
 func init() {
@@ -88,8 +88,8 @@ func GetClientConn(serviceName string, userCredential ...*UserCredential) (clien
 	runPort = port
 
 	serviceName = helper.ConvertUnderlineToWhippletree(serviceName)
-	host := serviceName+helper.GetEnv("SSLSuffixServerName")
-	address := serviceName+helper.GetEnv("ClusterSuffixDomain")
+	host := serviceName + helper.GetEnv("SSLSuffixServerName")
+	address := serviceName + helper.GetEnv("ClusterSuffixDomain")
 	return setClientConn(host, address, userCredential)
 }
 
@@ -97,7 +97,7 @@ func GetLocalClientConn(serviceName string, userCredential ...*UserCredential) (
 
 	isDebug()
 
-	host := helper.ConvertUnderlineToWhippletree(serviceName)+helper.GetEnv("SSLSuffixServerName")
+	host := helper.ConvertUnderlineToWhippletree(serviceName) + helper.GetEnv("SSLSuffixServerName")
 	address := "127.0.0.1"
 	return setClientConn(host, address, userCredential)
 }
@@ -108,7 +108,7 @@ func setClientConn(host string, address string, userCredential []*UserCredential
 	var creds credentials.TransportCredentials
 
 	// 设置接收最大条数
-	optsCallOption = append(optsCallOption, grpc.MaxCallRecvMsgSize(100 * 1024 * 1024))
+	optsCallOption = append(optsCallOption, grpc.MaxCallRecvMsgSize(100*1024*1024))
 	opts = append(opts, grpc.WithDefaultCallOptions(optsCallOption...))
 
 	// client to server
